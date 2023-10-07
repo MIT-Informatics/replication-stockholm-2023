@@ -1,0 +1,13 @@
+---
+title: "Replication Summary"
+format: html
+editor: visual
+---
+
+## Replication Summary
+
+Summary of the replication team results ....
+
+```{r setup}
+library(tidyverse)
+```
