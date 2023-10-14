@@ -1,13 +1,61 @@
 ---
-title: "Replication Summary"
+title: "altman-demetrio-tarasenko Stockholm 2023 replication"
 format: html
 editor: visual
 ---
 
-## Replication Summary
+# **A comment on Cavaillé and Ferwerda (2022)**
 
-Summary of the replication team results ....
+Micah Altman[^1][^2] (MIT) [escience\@mit.edu](mailto:escience@mit.edu){.email}, Hans Gaebler (Harvard) [jgaebler\@fas.harvard.edu](mailto:jgaebler@fas.harvard.edu){.email}, Georgy Tarasenko (Cornell) [gt298\@cornell.edu](mailto:gt298@cornell.edu){.email}
+
+[^1]: Corresponding author.
+
+[^2]: All authors declare that they have no financial support or conflict of interest in this publication.
+
+## Abstract
+
+**Instructions**:
+
+Cavaillé and Ferwerda (2022) examine the effect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. In their preferred specification, they find that -- magnitude and uncertainty of main effect (p-value) --: supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties.
+
+First, we reproduce the paper main analysis, and find that ...
+
+Second, we test the robustness of the conclusions to (1)... (2)...
+
+We find that ...
+
+## Introduction
 
 ```{r setup}
 library(tidyverse)
 ```
+
+**Instructions**:
+
+*Briefly describe the main data sources, method, policy or treatment, time period and population for which the estimates apply. Then describe the main scientific claims (descriptive or causal) and robustness checks if those that are relevant for your re-analysis or replication. Quote the original part of the study that has the main scientific claim(s) including page number(s). As suggested in the Guide for Accelerating Computational Reproducibility in the Social Sciences (<https://bitss.github.io/ACRE/>), structure your summary of the main findings and methodology as follows: "The paper tested the effect of X on Y for population P, using method M. The main results show an effect of magnitude E (specify units and standard errors)" or "The paper estimated the value of Y (estimated or predicted) for population P under dimensions X using method M. The main results presented an estimate of magnitude E (specify units and standard errors)". This template assumes that the paper's scientific claims are focused on estimating a causal relationship. In the event that the original study is estimating/predicting a descriptive statistic of a population, or something else, then describe and quote the results accordingly using precise claims from the original study.*
+
+\_ Next, summarize your reproduction and/or replication. Start by stating how you have obtained the data and codes and if the original author(s) answered your request(s) a/nd questions. Indicate the repository where your programs and data are located. Then proceed with a description of your [conceptual reproducibility](https://i4replication.org/definitions.html) by describing if you have found coding error(s) and how they affect the main conclusions.\_
+
+\_ For replication, we adopt the definitions [here](https://i4replication.org/definitions.html). For robustness replicability, clearly state your robustness checks and how they affect the main point estimates. For direct and conceptual replications, clearly describe the new data. For conceptual replications, also describe the new procedures or they differ from the original study. Different procedures implies a different experimental design and/or analysis for experiments and different methods and/or analysis for observational data.\_
+
+*For all three replication types, be precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.*
+
+## Reproducibility
+
+**Instructions**:
+
+*Describe in details if you have found coding error(s) and how they affect the main conclusions. In the event that the sign, magnitude or statistical significance is changed for the main estimates or robustness checks, report the new point estimates (e.g., in a table) in this section.*
+
+## Replication
+
+**Instructions**:
+
+*Clearly state/describe which type of replication you are conducting. See definitions at the beginning of this document. For robustness replicability, present your robustness checks and how they impact the main point estimates one by one so that it is clear how each modification to the specification/analysis impacts the main conclusions. Then you may combine them. Also, clearly state why you conduct each specific robustness check and/or modify the setting/model.*
+
+## Conclusion
+
+*State the most important results of your work and what you have learned. You may also describe other empirical exercises that could be conducted by other replicators.*
+
+## References
+
+Cavaille, Charlotte, and Jeremy Ferwerda. "How distributional conflict over in-kind benefits generates support for far-right parties." The Journal of Politics 85, no. 1 (2023): 19-33.
