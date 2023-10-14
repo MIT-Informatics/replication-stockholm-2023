@@ -28,27 +28,61 @@ We find that ...
 
 ```{r setup}
 library(tidyverse)
+library(broom)
 ```
-
-**Instructions**:
 
 *Briefly describe the main data sources, method, policy or treatment, time period and population for which the estimates apply. Then describe the main scientific claims (descriptive or causal) and robustness checks if those that are relevant for your re-analysis or replication. Quote the original part of the study that has the main scientific claim(s) including page number(s). As suggested in the Guide for Accelerating Computational Reproducibility in the Social Sciences (<https://bitss.github.io/ACRE/>), structure your summary of the main findings and methodology as follows: "The paper tested the effect of X on Y for population P, using method M. The main results show an effect of magnitude E (specify units and standard errors)" or "The paper estimated the value of Y (estimated or predicted) for population P under dimensions X using method M. The main results presented an estimate of magnitude E (specify units and standard errors)". This template assumes that the paper's scientific claims are focused on estimating a causal relationship. In the event that the original study is estimating/predicting a descriptive statistic of a population, or something else, then describe and quote the results accordingly using precise claims from the original study.*
 
-\_ Next, summarize your reproduction and/or replication. Start by stating how you have obtained the data and codes and if the original author(s) answered your request(s) a/nd questions. Indicate the repository where your programs and data are located. Then proceed with a description of your [conceptual reproducibility](https://i4replication.org/definitions.html) by describing if you have found coding error(s) and how they affect the main conclusions.\_
+*\_ Next, summarize your reproduction and/or replication. Start by stating how you have obtained the data and codes and if the original author(s) answered your request(s) a/nd questions. Indicate the repository where your programs and data are located. Then proceed with a description of your [conceptual reproducibility](https://i4replication.org/definitions.html) by describing if you have found coding error(s) and how they affect the main conclusions.\_*
 
-\_ For replication, we adopt the definitions [here](https://i4replication.org/definitions.html). For robustness replicability, clearly state your robustness checks and how they affect the main point estimates. For direct and conceptual replications, clearly describe the new data. For conceptual replications, also describe the new procedures or they differ from the original study. Different procedures implies a different experimental design and/or analysis for experiments and different methods and/or analysis for observational data.\_
+*\_ For replication, we adopt the definitions [here](https://i4replication.org/definitions.html). For robustness replicability, clearly state your robustness checks and how they affect the main point estimates. For direct and conceptual replications, clearly describe the new data. For conceptual replications, also describe the new procedures or they differ from the original study. Different procedures implies a different experimental design and/or analysis for experiments and different methods and/or analysis for observational data.\_*
 
 *For all three replication types, be precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.*
 
 ## Reproducibility
 
-**Instructions**:
+*Describe in details if you have found coding error(s) and how they affect the main conclusions. In the event that the sign, magnitude or statistical significance is changed for the main estimates or robustness checks, report the new point estimates (e.g., in a table) in this section.g::*
 
-*Describe in details if you have found coding error(s) and how they affect the main conclusions. In the event that the sign, magnitude or statistical significance is changed for the main estimates or robustness checks, report the new point estimates (e.g., in a table) in this section.*
+```{r main-result-reproduction}
+requireNamespace("haven")
+requireNamespace("estimatr")
 
-## Replication
+austria.df <-
+  haven::read_dta("authors replication materials/Austria_final.dta")
+lmspec <- "dv_pop_01*pct_noneu_06"
+results_computational.lm <-
+  estimatr::lm_robust(formula(paste0("d_rr_06 ~", lmspec)), data = austria.df)
 
-**Instructions**:
+tidy_computational.df <-
+  broom::tidy(fit1.lm) %>% mutate(repl_id = "computational")
+
+#NOTE: p-value represents upper bound of actual p-value, since only a '*' notation used in reporting
+
+tidy_original.df <-
+  structure(
+    list(
+      term = c(
+        "(Intercept)",
+        "dv_pop_01",
+        "pct_noneu_06",
+        "dv_pop_01:pct_noneu_06"
+      ),
+      estimate = c(0.04, 0.02,-0.02, 0.67),
+      std.error = c(0, 0.03, 0.03, 0.17),
+      p.value = c(0.05, 1,  0.05, 0.05),
+      repl_id = c("original", "original", "original",  "original")
+    ),
+    row.names = c(NA,-4L),
+    class = "data.frame"
+  )
+
+print(tidy_original.df)
+print(tidy_computational.df)
+summary(results_computational.lm)
+
+```
+
+## Replication:
 
 *Clearly state/describe which type of replication you are conducting. See definitions at the beginning of this document. For robustness replicability, present your robustness checks and how they impact the main point estimates one by one so that it is clear how each modification to the specification/analysis impacts the main conclusions. Then you may combine them. Also, clearly state why you conduct each specific robustness check and/or modify the setting/model.*
 
