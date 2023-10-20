@@ -27,7 +27,11 @@ We find that ...
 ## Introduction
 
 ```{r setup}
+#| include: false
+#| echo: false
+
 library(tidyverse)
+library(magrittr,include.only="%<>%")
 library(broom)
 ```
 
@@ -44,19 +48,24 @@ library(broom)
 *Describe in details if you have found coding error(s) and how they affect the main conclusions. In the event that the sign, magnitude or statistical significance is changed for the main estimates or robustness checks, report the new point estimates (e.g., in a table) in this section.g::*
 
 ```{r main-result-reproduction}
+#| echo: false
+
 requireNamespace("haven")
+
 requireNamespace("estimatr")
+# workaround absence of tidier for estimatr models summary
+glance.summary.lm_robust <- function(x,...) {
+ x[c("r.squared","adj.r.squared","df.residual","res_var","nobs")] %>% as_tibble()
+}
 
-austria.df <-
+
+# main replication data from authors
+austria_authors.df <-
   haven::read_dta("authors replication materials/Austria_final.dta")
-lmspec <- "dv_pop_01*pct_noneu_06"
-results_computational.lm <-
-  estimatr::lm_robust(formula(paste0("d_rr_06 ~", lmspec)), data = austria.df)
 
-tidy_computational.df <-
-  broom::tidy(fit1.lm) %>% mutate(repl_id = "computational")
 
-#NOTE: p-value represents upper bound of actual p-value, since only a '*' notation used in reporting
+# verbatim results from published article for main model
+# NOTE: p-value represents upper bound of actual p-value, since only a '*' notation used in reporting
 
 tidy_original.df <-
   structure(
@@ -76,9 +85,30 @@ tidy_original.df <-
     class = "data.frame"
   )
 
-print(tidy_original.df)
-print(tidy_computational.df)
-summary(results_computational.lm)
+# reproduce authors model using original code for OLS with 'robust' errors & base R OLS
+
+lmspec <- "dv_pop_01*pct_noneu_06"
+results_computational.lmr <-
+  estimatr::lm_robust(formula(paste0("d_rr_06 ~", lmspec)), 
+                      data = austria_authors.df)
+
+results_ols.lm <-
+  stats::lm(formula(paste0("d_rr_06 ~", lmspec)), data = austria_authors.df)
+```
+
+```{r tidy-results}
+
+tidy_results.df  <- 
+  map(list(comp=results_computational.lmr, ols=results_ols.lm), \(x) tidy(x)) %>%
+  list_rbind(names_to="repl_id") %>%
+  bind_rows(tidy_original.df)
+
+glance_summary_results.df <- 
+   map(list(comp=results_computational.lmr, ols=results_ols.lm), \(x) glance(summary(x))) %>%
+  list_rbind(names_to="repl_id") 
+
+print(tidy_results.df)
+print(glance_summary_results.df)
 
 ```
 
