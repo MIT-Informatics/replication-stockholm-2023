@@ -16,9 +16,9 @@ Micah Altman[^1][^2] (MIT) [escience\@mit.edu](mailto:escience@mit.edu){.email},
 
 **Instructions**:
 
-Cavaillé and Ferwerda (2022) examine the effect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. In their preferred specification, they find that -- magnitude and uncertainty of main effect (p-value) --: supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties.
+Cavaillé and Ferwerda (2022) examine the effect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. In their preferred specification, they find that -- [***magnitude and uncertainty of main effect (p-value)***]{.underline} **--**= supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties. Moderating this, based on a subset of data from Vienna, they find that -- [***magnitude and uncertainty of secondary effect (p-value)***]{.underline} *--* support was concentrated in districts with a high proportion of public housing beneficiaries or low-end rentals.
 
-First, we reproduce the paper main analysis, and find that ...
+First, we reproduce the paper's main and secondary analysis, and find that ...
 
 Second, we test the robustness of the conclusions to (1)... (2)...
 
@@ -33,6 +33,17 @@ We find that ...
 library(tidyverse)
 library(magrittr,include.only="%<>%")
 library(broom)
+library(gt)
+
+tidy_results<-function(resls){
+  purrr::map(resls, \(x) tidy(x)) %>%
+    list_rbind(names_to="repl_id")
+}
+
+tidy_summary<-function(resls){
+  purrr::map(resls, \(x) glance(summary(x))) %>%
+    list_rbind(names_to="repl_id")
+}
 ```
 
 *Briefly describe the main data sources, method, policy or treatment, time period and population for which the estimates apply. Then describe the main scientific claims (descriptive or causal) and robustness checks if those that are relevant for your re-analysis or replication. Quote the original part of the study that has the main scientific claim(s) including page number(s). As suggested in the Guide for Accelerating Computational Reproducibility in the Social Sciences (<https://bitss.github.io/ACRE/>), structure your summary of the main findings and methodology as follows: "The paper tested the effect of X on Y for population P, using method M. The main results show an effect of magnitude E (specify units and standard errors)" or "The paper estimated the value of Y (estimated or predicted) for population P under dimensions X using method M. The main results presented an estimate of magnitude E (specify units and standard errors)". This template assumes that the paper's scientific claims are focused on estimating a causal relationship. In the event that the original study is estimating/predicting a descriptive statistic of a population, or something else, then describe and quote the results accordingly using precise claims from the original study.*
@@ -45,29 +56,28 @@ library(broom)
 
 ## Reproducibility
 
-*Describe in details if you have found coding error(s) and how they affect the main conclusions. In the event that the sign, magnitude or statistical significance is changed for the main estimates or robustness checks, report the new point estimates (e.g., in a table) in this section.g::*
+*Describe in details if you have found coding error(s) and how they affect the main conclusions. In the event that the sign, magnitude or statistical significance is changed for the main estimates or robustness checks, report the new point estimates (e.g., in a table) in this section.g:*
+
+### Reproduction of Table 1 - Model 1 (Primary Result)
 
 ```{r main-result-reproduction}
 #| echo: false
 
 requireNamespace("haven")
-
 requireNamespace("estimatr")
 # workaround absence of tidier for estimatr models summary
 glance.summary.lm_robust <- function(x,...) {
  x[c("r.squared","adj.r.squared","df.residual","res_var","nobs")] %>% as_tibble()
 }
 
-
 # main replication data from authors
 austria_authors.df <-
   haven::read_dta("authors replication materials/Austria_final.dta")
 
-
 # verbatim results from published article for main model
 # NOTE: p-value represents upper bound of actual p-value, since only a '*' notation used in reporting
 
-tidy_original.df <-
+tidy_m1_original.df <-
   structure(
     list(
       term = c(
@@ -85,36 +95,171 @@ tidy_original.df <-
     class = "data.frame"
   )
 
-# reproduce authors model using original code for OLS with 'robust' errors & base R OLS
+# reproduce authors model using original code for OLS with 'robust' errors'
 
-lmspec <- "dv_pop_01*pct_noneu_06"
-results_computational.lmr <-
-  estimatr::lm_robust(formula(paste0("d_rr_06 ~", lmspec)), 
-                      data = austria_authors.df)
+m1.formula  <- formula("d_rr_06 ~ dv_pop_01*pct_noneu_06")
 
-results_ols.lm <-
-  stats::lm(formula(paste0("d_rr_06 ~", lmspec)), data = austria_authors.df)
+results_m1_computational.lmr <-
+  estimatr::lm_robust(m1.formula,   data = austria_authors.df)
+
+repro_m1.df <- tidy_results(list(comp=results_m1_computational.lmr)) %>% 
+   bind_rows(tidy_m1_original.df)
+
+repro_m1_summary.df <- tidy_summary(list(comp=results_m1_computational.lmr))
+
+repro_m1.df %>% group_by(repl_id) %>% gt()
+
+repro_m1_summary.df %>% group_by(repl_id) %>% gt()
 ```
 
-```{r tidy-results}
+### Reproduction of Table 2 - Model 1 (Secondary Result)
 
-tidy_results.df  <- 
-  map(list(comp=results_computational.lmr, ols=results_ols.lm), \(x) tidy(x)) %>%
-  list_rbind(names_to="repl_id") %>%
-  bind_rows(tidy_original.df)
+```{r secondary-result-reproduction}
+vienna_authors.df <- 
+  haven::read_dta("authors replication materials/vienna_final.dta")
 
-glance_summary_results.df <- 
-   map(list(comp=results_computational.lmr, ols=results_ols.lm), \(x) glance(summary(x))) %>%
-  list_rbind(names_to="repl_id") 
+m2.formula<- formula("dv ~  (pctrental + pctpublic_w_zsp)")
 
-print(tidy_results.df)
-print(glance_summary_results.df)
+results_m2_computational.lmr <-
+  estimatr::lm_robust(m2.formula,   data = vienna_authors.df, 
+                      clusters = tract_key)
 
+tidy_m2_original.df <-
+  structure(
+    list(
+      term = c(
+        "(Intercept)",
+        "pctrental",
+        "pctpublic_w_zsp"
+      ),
+      estimate = c(0.04, 0.03,-0.09),
+      std.error = c(0.01, 0.01, 0.01),
+      p.value = c(0.05, 0.05,  0.05),
+      repl_id = c("original", "original", "original")
+    ),
+    row.names = c(NA,-3L),
+    class = "data.frame"
+  )
+
+repro_m2.df <- tidy_results(list(comp=results_m2_computational.lmr)) %>% 
+   bind_rows(tidy_m2_original.df)
+
+repro_m2_summary.df <- tidy_summary(list(comp=results_m2_computational.lmr))
+
+repro_m2.df %>% group_by(repl_id) %>% gt()
+
+repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 ```
+
+### Summary - Computational Reproducibility
+
+-   Main result - reproducible with original data & code
+
+-   Secondary result
+
+-   Comments: specific p-values, measures of fit, cluster variable missingness
+
+-   Cluster variable missingness
 
 ## Replication:
 
 *Clearly state/describe which type of replication you are conducting. See definitions at the beginning of this document. For robustness replicability, present your robustness checks and how they impact the main point estimates one by one so that it is clear how each modification to the specification/analysis impacts the main conclusions. Then you may combine them. Also, clearly state why you conduct each specific robustness check and/or modify the setting/model.*
+
+### Alternate Estimation Procedures (computational robustness)
+
+#### Primary Result
+
+-   use glm, lm fitters to check implementation robustness
+
+-   could also use nls, bayesglm, mle2 \-- would require reexpressing current formula in different syntax
+
+```{r alternate-estimations-m1}
+
+glance.summary.glm <- function(x,...) {
+ x[c("aic","df.residual")] %>% as_tibble()
+}
+
+results_m1_statlm.lm <-
+  stats::lm(m1.formula, data = austria_authors.df)
+
+results_m1_statglm.glm <-
+  stats::glm(m1.formula, data = austria_authors.df)
+
+
+alt_est_m1.df <- tidy_results(list(lmrobust = results_m1_computational.lmr,
+                                  lm=results_m1_statlm.lm,
+                                  glm=results_m1_statglm.glm))
+
+alt_est_m1_summary.df <- tidy_summary(list(lmrobust = results_m1_computational.lmr,
+                                  lm=results_m1_statlm.lm,
+                                  glm=results_m1_statglm.glm))
+
+alt_est_m1.df  %>% group_by(repl_id) %>% gt()
+alt_est_m1_summary.df %>% group_by(repl_id) %>% gt()
+
+```
+
+#### Secondary Result
+
+```{r alternate-estimations-m2}
+
+
+```
+
+### Alternate OLS Specification (covariate robustness)
+
+-   alternate methods for computing robust standard errors? (e.g. sensemaker, lmtest, sandwich)
+
+-   
+
+```{r alternate-variables-m1}
+
+
+results_m1_nomain.lmr <-
+  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"), data = austria_authors.df)
+
+results_m1_kitchensink.lmr <-
+  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"), data = austria_authors.df)
+
+results_m1_mainonly.lmr <-
+  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 + pct_noneu_06 "), data = austria_authors.df)
+
+alt_var_m1.df <- tidy_results(list(nomain = results_m1_nomain.lmr,
+                                   kitchen =results_m1_kitchensink.lmr,
+                                   mainonly =results_m1_mainonly.lmr))
+
+alt_var_m1_summary.df <- tidy_summary(list(nomain = results_m1_nomain.lmr,
+                                   kitchen =results_m1_kitchensink.lmr,
+                                   mainonly =results_m1_mainonly.lmr))
+
+alt_var_m1.df  %>% group_by(repl_id) %>% gt()
+alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
+```
+
+### Alternate data (data robustness)
+
+-   outlier analysis
+
+-   residual analysis
+
+-   perturbation analysis
+
+```{r alternate-data}
+
+austria_authors.df %>% ggplot(aes(y=d_rr_06)) + geom_histogram(bins=100)
+```
+
+### Alternate Models (model and alternate hypothesis robustness)
+
+-   specific alternate models ?
+
+-   general model comparison and synthesis -- (e.g. bayesian model averaging)
+
+```{r alternate-models}
+
+```
+
+### Summary - Replicability
 
 ## Conclusion
 

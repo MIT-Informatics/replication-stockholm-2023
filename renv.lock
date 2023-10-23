@@ -48,11 +48,12 @@
     },
     "Matrix": {
       "Package": "Matrix",
-      "Version": "1.5-4.1",
+      "Version": "1.6-1.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
+        "grDevices",
         "graphics",
         "grid",
         "lattice",
@@ -60,7 +61,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "38082d362d317745fb932e13956dccbb"
+      "Hash": "1a00d4828f33a9d690806e98bd17150c"
     },
     "MatrixModels": {
       "Package": "MatrixModels",
@@ -148,6 +149,19 @@
       ],
       "Hash": "2042cd9759cc89a453c4aefef0ce9aae"
     },
+    "V8": {
+      "Package": "V8",
+      "Version": "4.4.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "Rcpp",
+        "curl",
+        "jsonlite",
+        "utils"
+      ],
+      "Hash": "df924bedbdcaaf3b1d3ac7ed94f4d001"
+    },
     "abind": {
       "Package": "abind",
       "Version": "1.4-5",
@@ -217,6 +231,16 @@
       ],
       "Hash": "b55d57db210e5af3f097ae228aadaf50"
     },
+    "bigD": {
+      "Package": "bigD",
+      "Version": "0.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "93637e906f3fe962413912c956eb44db"
+    },
     "bit": {
       "Package": "bit",
       "Version": "4.0.5",
@@ -240,6 +264,13 @@
         "utils"
       ],
       "Hash": "9fe98599ca456d6552421db0d6772d8f"
+    },
+    "bitops": {
+      "Package": "bitops",
+      "Version": "1.0-7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b7d8d8ee39869c18d8846a184dd8a1af"
     },
     "blob": {
       "Package": "blob",
@@ -428,6 +459,13 @@
         "stats"
       ],
       "Hash": "f20c47fd52fae58b4e377c37bb8c335b"
+    },
+    "commonmark": {
+      "Package": "commonmark",
+      "Version": "1.9.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "d691c61bff84bd63c383874d2d0c3307"
     },
     "conflicted": {
       "Package": "conflicted",
@@ -1009,6 +1047,36 @@
       ],
       "Hash": "7d7f283939f563670a697165b2cf5560"
     },
+    "gt": {
+      "Package": "gt",
+      "Version": "0.10.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "base64enc",
+        "bigD",
+        "bitops",
+        "cli",
+        "commonmark",
+        "dplyr",
+        "fs",
+        "glue",
+        "htmltools",
+        "htmlwidgets",
+        "juicyjuice",
+        "magrittr",
+        "markdown",
+        "reactable",
+        "rlang",
+        "sass",
+        "scales",
+        "tibble",
+        "tidyselect",
+        "xml2"
+      ],
+      "Hash": "21737c74811cccac01b5097bcb0f8b4c"
+    },
     "gtable": {
       "Package": "gtable",
       "Version": "0.3.4",
@@ -1087,6 +1155,21 @@
       ],
       "Hash": "1e12fe667316a76508898839ecfb2d00"
     },
+    "htmlwidgets": {
+      "Package": "htmlwidgets",
+      "Version": "1.6.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "grDevices",
+        "htmltools",
+        "jsonlite",
+        "knitr",
+        "rmarkdown",
+        "yaml"
+      ],
+      "Hash": "a865aa85bcb2697f47505bfd70422471"
+    },
     "httr": {
       "Package": "httr",
       "Version": "1.4.7",
@@ -1156,6 +1239,16 @@
         "methods"
       ],
       "Hash": "266a20443ca13c65688b2116d5220f76"
+    },
+    "juicyjuice": {
+      "Package": "juicyjuice",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "V8"
+      ],
+      "Hash": "3bcd11943da509341838da9399e18bce"
     },
     "knitr": {
       "Package": "knitr",
@@ -1317,6 +1410,19 @@
         "utils"
       ],
       "Hash": "a7719c7b7989be666f8049e7d087fbea"
+    },
+    "markdown": {
+      "Package": "markdown",
+      "Version": "1.11",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "commonmark",
+        "utils",
+        "xfun"
+      ],
+      "Hash": "82b8d62b5451f8adea7d11a99dfea633"
     },
     "matrixStats": {
       "Package": "matrixStats",
@@ -1779,6 +1885,31 @@
         "utils"
       ],
       "Hash": "565c201eeda84b882b592618055b0d92"
+    },
+    "reactR": {
+      "Package": "reactR",
+      "Version": "0.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "htmltools"
+      ],
+      "Hash": "c9014fd1a435b2d790dd506589cb24e5"
+    },
+    "reactable": {
+      "Package": "reactable",
+      "Version": "0.4.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "digest",
+        "htmltools",
+        "htmlwidgets",
+        "jsonlite",
+        "reactR"
+      ],
+      "Hash": "6069eb2a6597963eae0605c1875ff14c"
     },
     "readr": {
       "Package": "readr",
