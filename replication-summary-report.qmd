@@ -243,10 +243,21 @@ rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 
 ### Alternate OLS Specification (covariate robustness)
 
-```{r alternate-variables-m1}
-results_m1_nomain.lmr <-
-  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"), data = austria_authors.df)
+-   Alternate covariate specification
 
+-   Simpler model
+
+-   Clustered standard errors
+
+```{r alternate-variables-m1}
+
+#NOTE: could also explore  alternate methods for computing robust standard errors? (e.g. sensemaker, lmtest, sandwich)
+
+results_m1_clustered.lmr <-
+  estimatr::lm_robust(m1.formula, data = austria_authors.df, clusters = bezirk)
+
+results_m1_interactionsonly.lmr <-
+  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"), data = austria_authors.df)
 
 results_m1_kitchensink.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"), data = austria_authors.df)
@@ -254,7 +265,11 @@ results_m1_kitchensink.lmr <-
 results_m1_mainonly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 + pct_noneu_06 "), data = austria_authors.df)
 
+results_m1_euonly.lmr <-
+  estimatr::lm_robust(formula("d_rr_06 ~ pct_noneu_06 "), data = austria_authors.df)
 
+results_m1_poponly.lmr <-
+  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 "), data = austria_authors.df)
 
 alt_var_m1.df <- tidy_results(list(nomain = results_m1_nomain.lmr,
                                    kitchen =results_m1_kitchensink.lmr,
@@ -268,9 +283,23 @@ alt_var_m1.df  %>% group_by(repl_id) %>% gt()
 alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
 
 
-```
+ml.ls <- list( author_model1 = results_m1_computational.lmr,
+              author_clusterederr =results_m1_clustered.lmr,
+              loaded_model =results_m1_kitchensink.lmr,
+              interaction =results_m1_interactionsonly.lmr,
+              maineffects =results_m1_mainonly.lmr,
+              single_eu =results_m1_euonly.lmr,
+              single_pop =results_m1_poponly.lmr)
 
--   alternate methods for computing robust standard errors? (e.g. sensemaker, lmtest, sandwich)
+alt_var_m1.df <- tidy_results(ml.ls)
+alt_var_m1_summary.df <- tidy_summary(ml.ls)
+
+alt_var_m1.df  %>% group_by(repl_id) %>% gt()
+alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
+rm(ml.ls, results_m1_clustered.lmr,
+   results_m1_kitchensink.lmr, results_m1_interactionsonly.lmr,
+   results_m1_mainonly.lmr, results_m1_euonly.lmr, results_m1_poponly.lmr)
+```
 
 ### Alternate data (data robustness)
 
