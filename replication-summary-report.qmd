@@ -425,7 +425,7 @@ This suggests that the evidence from Vienna specifically for the proposed mechan
 
 ```
 
-#### Summary: Covariate Robustness
+#### Summary: Alternate OLS Specifications
 
 ### Alternate data (data robustness)
 
