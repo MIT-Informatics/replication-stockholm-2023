@@ -44,6 +44,16 @@ tidy_summary<-function(resls){
   purrr::map(resls, \(x) glance(summary(x))) %>%
     list_rbind(names_to="repl_id")
 }
+
+# workaround absence of tidier for some of the packages used
+glance.summary.lm_robust <- function(x,...) {
+ x[c("r.squared","adj.r.squared","df.residual","res_var","nobs")] %>% as_tibble()
+}
+
+glance.summary.glm <- function(x,...) {
+ x[c("aic","df.residual")] %>% as_tibble()
+}
+
 ```
 
 *Briefly describe the main data sources, method, policy or treatment, time period and population for which the estimates apply. Then describe the main scientific claims (descriptive or causal) and robustness checks if those that are relevant for your re-analysis or replication. Quote the original part of the study that has the main scientific claim(s) including page number(s). As suggested in the Guide for Accelerating Computational Reproducibility in the Social Sciences (<https://bitss.github.io/ACRE/>), structure your summary of the main findings and methodology as follows: "The paper tested the effect of X on Y for population P, using method M. The main results show an effect of magnitude E (specify units and standard errors)" or "The paper estimated the value of Y (estimated or predicted) for population P under dimensions X using method M. The main results presented an estimate of magnitude E (specify units and standard errors)". This template assumes that the paper's scientific claims are focused on estimating a causal relationship. In the event that the original study is estimating/predicting a descriptive statistic of a population, or something else, then describe and quote the results accordingly using precise claims from the original study.*
@@ -65,10 +75,6 @@ tidy_summary<-function(resls){
 
 requireNamespace("haven")
 requireNamespace("estimatr")
-# workaround absence of tidier for estimatr models summary
-glance.summary.lm_robust <- function(x,...) {
- x[c("r.squared","adj.r.squared","df.residual","res_var","nobs")] %>% as_tibble()
-}
 
 # main replication data from authors
 austria_authors.df <-
@@ -155,7 +161,7 @@ repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 
 -   Main result - reproducible with original data & code
 
--   Secondary result
+-   Secondary result - reproducible with original data & code
 
 -   Comments: specific p-values, measures of fit, cluster variable missingness
 
@@ -169,41 +175,62 @@ repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 
 #### Primary Result
 
--   use glm, lm fitters to check implementation robustness
-
--   could also use nls, bayesglm, mle2 \-- would require re-expressing current formula in different syntax
+-   use alternative fitters of same statistical model to check implementation robustness
 
 ```{r alternate-estimations-m1}
-
-glance.summary.glm <- function(x,...) {
- x[c("aic","df.residual")] %>% as_tibble()
-}
+requireNamespace("arm")
 
 results_m1_statlm.lm <-
   stats::lm(m1.formula, data = austria_authors.df)
-
 results_m1_statglm.glm <-
   stats::glm(m1.formula, data = austria_authors.df)
+results_m1_statbayeslm.glm <-
+  arm::bayesglm(m1.formula, data = austria_authors.df, 
+                prior.scale=Inf, prior.df=Inf)
 
+#Note: could also add nls, bayesglm, mle2 -- would require re-expressing current formula in different syntax, and renaming results matrix
 
-alt_est_m1.df <- tidy_results(list(lmrobust = results_m1_computational.lmr,
-                                  lm=results_m1_statlm.lm,
-                                  glm=results_m1_statglm.glm))
+ml.ls <- list(lmrobust = results_m1_computational.lmr,
+              lm=results_m1_statlm.lm,
+              glm=results_m1_statglm.glm,
+              bayes=results_m1_statbayeslm.glm)
 
-alt_est_m1_summary.df <- tidy_summary(list(lmrobust = results_m1_computational.lmr,
-                                  lm=results_m1_statlm.lm,
-                                  glm=results_m1_statglm.glm))
+alt_est_m1.df <- tidy_results(ml.ls)
+alt_est_m1_summary.df <- tidy_summary(ml.ls)
 
 alt_est_m1.df  %>% group_by(repl_id) %>% gt()
 alt_est_m1_summary.df %>% group_by(repl_id) %>% gt()
 
+rm(ml.ls,results_m1_statlm.lm,results_m1_statglm.glm,results_m1_statbayeslm.glm)
 ```
 
 #### Secondary Result
 
 ```{r alternate-estimations-m2}
 
+requireNamespace("arm")
 
+results_m2_statlm.lm <-
+  stats::lm(m2.formula, data = vienna_authors.df)
+results_m2_statglm.glm <-
+  stats::glm(m2.formula, data = vienna_authors.df)
+results_m2_statbayeslm.glm <-
+  arm::bayesglm(m2.formula, data = vienna_authors.df, 
+                prior.scale=Inf, prior.df=Inf)
+
+#Note: could also add nls, bayesglm, mle2 -- would require re-expressing current formula in different syntax, and renaming results matrix
+
+ml.ls <- list(lmrobust = results_m1_computational.lmr,
+              lm=results_m2_statlm.lm,
+              glm=results_m2_statglm.glm,
+              bayes=results_m2_statbayeslm.glm)
+
+alt_est_m2.df <- tidy_results(ml.ls)
+alt_est_m2_summary.df <- tidy_summary(ml.ls)
+
+alt_est_m2.df  %>% group_by(repl_id) %>% gt()
+alt_est_m2_summary.df %>% group_by(repl_id) %>% gt()
+rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 ```
 
 ### Alternate OLS Specification (covariate robustness)
