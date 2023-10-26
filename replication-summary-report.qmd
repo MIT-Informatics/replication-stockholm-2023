@@ -349,13 +349,14 @@ rm(
 #  estimatr::lm_robust(m2.formula,   data = vienna_authors.df, 
 #                      clusters = tract_key)
 
- estimatr::lm_robust(dv ~pcrental+public_w_zsp,   data = vienna_authors.df, 
+ results_m2_interaction.lmr <- estimatr::lm_robust(formula("dv ~ pctrental*pctpublic_w_zsp"),
+                     data = vienna_authors.df, 
                     clusters = tract_key)
 
 ml.ls <- list(
-  author_model2 = results_m2_computational.lmr
+  author_model2 = results_m2_computational.lmr,
+  model2_interaction = results_m2_interaction.lmr
 )
-
 
 alt_var_m2.df <- tidy_results(ml.ls)
 alt_var_m2_summary.df <- tidy_summary(ml.ls)
