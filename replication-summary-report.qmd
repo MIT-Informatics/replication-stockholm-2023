@@ -165,7 +165,7 @@ repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 
 -   Comments: specific p-values, measures of fit, cluster variable missingness
 
--   Cluster variable missingness
+    -   Appendix does provide some additional detail on number of observations -- though not for models in table & 2 -- provides no additional measures of fit, or precision on p-values
 
 ## Replication:
 
