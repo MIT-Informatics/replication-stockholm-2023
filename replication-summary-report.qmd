@@ -61,7 +61,9 @@ glance.summary.glm <- function(x,...) {
 theme_set(theme_bw())
 ```
 
-*Briefly describe the main data sources, method, policy or treatment, time period and population for which the estimates apply. Then describe the main scientific claims (descriptive or causal) and robustness checks if those that are relevant for your re-analysis or replication. Quote the original part of the study that has the main scientific claim(s) including page number(s). As suggested in the Guide for Accelerating Computational Reproducibility in the Social Sciences (<https://bitss.github.io/ACRE/>), structure your summary of the main findings and methodology as follows: "The paper tested the effect of X on Y for population P, using method M. The main results show an effect of magnitude E (specify units and standard errors)" or "The paper estimated the value of Y (estimated or predicted) for population P under dimensions X using method M. The main results presented an estimate of magnitude E (specify units and standard errors)". This template assumes that the paper's scientific claims are focused on estimating a causal relationship. In the event that the original study is estimating/predicting a descriptive statistic of a population, or something else, then describe and quote the results accordingly using precise claims from the original study.*
+***Briefly describe the main data sources, method, policy or treatment, time period and population for which the estimates apply. Then describe the main scientific claims (descriptive or causal) and robustness checks if those that are relevant for your re-analysis or replication. Quote the original part of the study that has the main scientific claim(s) including page number(s). As suggested in the Guide for Accelerating Computational Reproducibility in the Social Sciences (<https://bitss.github.io/ACRE/>), structure your summary of the main findings and methodology as follows: "The paper tested the effect of X on Y for population P, using method M. The main results show an effect of magnitude E (specify units and standard errors)" or "The paper estimated the value of Y (estimated or predicted) for population P under dimensions X using method M. The main results presented an estimate of magnitude E (specify units and standard errors)".***
+
+We obtained the published replication data set [@Cavaille2023] from the Harvard Dataverse archive, where it had been deposited for public use by the authors. The replication data set included the final processed data used to produce the paper results, along with R code to replicate figures and tables. The data was sufficient to check computational repoducibility but posed challenges for conceptual reproducibility because it provided neither copies of the source data, nor links to or citations of the original data sources (which were described generally). Further although the replication data did include additional measures not used in publication, these were largely undocumented, and hence difficult to reliably interpret.
 
 *\_ Next, summarize your reproduction and/or replication. Start by stating how you have obtained the data and codes and if the original author(s) answered your request(s) a/nd questions. Indicate the repository where your programs and data are located. Then proceed with a description of your [conceptual reproducibility](https://i4replication.org/definitions.html) by describing if you have found coding error(s) and how they affect the main conclusions.\_*
 
@@ -305,7 +307,6 @@ results_m1_euonly.lmr <-
 results_m1_poponly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 "), data = austria_authors.df)
 
-
 ml.ls <- list(
   author_model1 = results_m1_computational.lmr,
   author_clusterederr = results_m1_clustered.lmr,
@@ -356,8 +357,6 @@ ml.ls <- list(
 )
 
 
-
-est
 alt_var_m2.df <- tidy_results(ml.ls)
 alt_var_m2_summary.df <- tidy_summary(ml.ls)
 
@@ -605,7 +604,6 @@ p1 <- austria_authors.df %>%
     hjust = 0
   )
 
-
 p2 <- austria_authors.df %>%
   mutate(outlier = ifelse(
     (
@@ -744,3 +742,11 @@ R-squared drops substantially when dropping outliers.
 ## Conclusion
 
 *State the most important results of your work and what you have learned. You may also describe other empirical exercises that could be conducted by other replicators.*
+
+-   The research is computationally replicable, and likely reflect patterns in outcomes that are relevant to understanding the underlying data generating process.
+
+-   Evidence for the overall primary and secondary causal claims is overstated. The model accounts for a small amount of the overall variance in results, and fits only marginally better than alternative simpler model with no interactions.
+
+-   The overall weakness of the clims are obscured in the publications because of absence from publications of goodness-of-fit and naive prediction comparisons.
+
+-   Conceptual reproducibility anlaysis is needed to further probe results, but obstructed by the absence of citations, documentation and linking codes that would enable reanalysis from original sources, or augmentation with richer data.
