@@ -98,6 +98,12 @@ the 5\% level. Implementing this robustness check in their secondary analysis
 has no effect on the magnitude or the statistical significance of the main point
 estimates.
 
+Next, to better understand the authors main claims, how well their models fit
+the data, and to search for potential anomalies not evident in low-dimensional
+summaries, we attempted to visually replicate their primary and secondary
+analyses. Based on this graphical exploration, we carried out an outlier
+analysis.
+
 ## Reproducibility
 
 ### Simple Direct Reproduction (Calibration)
