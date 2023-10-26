@@ -19,13 +19,13 @@ Micah Altman[^1][^2] (MIT) [escience\@mit.edu](mailto:escience@mit.edu){.email},
 
 ## Abstract
 
-Cavaillé and Ferwerda [@cavaillé2023] examine the effect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. In their preferred specification, they find that -- [***magnitude and uncertainty of main effect (p-value)***]{.underline} **--**= supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties. Moderating this, based on a subset of data from Vienna, they find that -- [***magnitude and uncertainty of secondary effect (p-value)***]{.underline} *--* support was concentrated in districts with a high proportion of public housing beneficiaries or low-end rentals.
+Cavaillé and Ferwerda [@cavaillé2023] examine the effect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. In their preferred specification, they find that -- the interaction of the proportion of non-eu residents in a municipality with the proportion of population in that municipality has an effect on the change in vote share for far right parties of +0.67 (p \< .05) supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties. Moderating this, based on a subset of data from Vienna, they find that -- percentage of population in rental housing and the percentage of population in public housing are both substantive and significant predictors of change in far-right party vote share with magnitude of .03 and .09 (respectively) and p-values of \< .05. Based on this estmate they conclude that support was increased by the the high proportion of public housing beneficiaries or low-end rentals within districts.
 
-First, we reproduce the paper's main and secondary analysis, and find that the results are computationally reproducible at the reported level of accuracy, and are robust to variation of the
+We first reproduce the paper's main and secondary analyses, and subject these to computational robustness tests.
 
-Second, we test the robustness of the conclusions to (1)... (2)...
+We then conduct several types of conceptual replication -- examining the robustness of results to selection of covariates, reweighting, and the sensitivity of results to resampling and outliers.
 
-We find that ...
+We find research is computationally replicable but the evidence for the main causal claims are overstated as it sensitive to a small set of observations, does not explain most of the variation in outcomes, and does not out-compete simpler causal explanations.
 
 ## Introduction
 
@@ -61,13 +61,17 @@ glance.summary.glm <- function(x,...) {
 theme_set(theme_bw())
 ```
 
-***Briefly describe the main data sources, method, policy or treatment, time period and population for which the estimates apply. Then describe the main scientific claims (descriptive or causal) and robustness checks if those that are relevant for your re-analysis or replication. Quote the original part of the study that has the main scientific claim(s) including page number(s). As suggested in the Guide for Accelerating Computational Reproducibility in the Social Sciences (<https://bitss.github.io/ACRE/>), structure your summary of the main findings and methodology as follows: "The paper tested the effect of X on Y for population P, using method M. The main results show an effect of magnitude E (specify units and standard errors)" or "The paper estimated the value of Y (estimated or predicted) for population P under dimensions X using method M. The main results presented an estimate of magnitude E (specify units and standard errors)".***
+Cavaillé and Ferwerda [@cavaillé2023] tested the ffect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. We focus on their two main claims, as described in the abstract (pg 19):
+
+> we show that the **reform increased support for far-right parties with welfare chauvinist platforms**. Electoral ward data suggest that this **response was concentrated in districts with a high proportion of public housing beneficiaries or low-end rentals.** Our findings provide novel evidence that **distributional conflict can accelerate the rise of far-right parties in countries with substantialin-kind welfare programs**
+
+In their preferred specification, using OLS with clustered standard errors, they find that -- the interaction of the proportion of non-eu residents in a municipality with the proportion of population in that municipality has an effect on the change in vote share for far right parties of +0.67 (p \< .05) (pg 26, Table 1, col 1) supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties (pg. 19). Moderating this, based on a subset of data from Vienna, they find that -- percentage of population in rental housing and the percentage of population in public housing are both substantive and significant predictors of change in far-right party vote share with magnitude of .03 and .09 (respectively) and p-values of \< .05. (pg 30, Table 2, col 1). Based on this estimate they conclude that support was accelerated by the the high proportion of public housing beneficiaries or low-end rentals within districts. (pg 19.)
 
 We obtained the published replication data set [@Cavaille2023] from the Harvard Dataverse archive, where it had been deposited for public use by the authors. The replication data set included the final processed data used to produce the paper results, along with R code to replicate figures and tables. The data was sufficient to check computational repoducibility but posed challenges for conceptual reproducibility because it provided neither copies of the source data, nor links to or citations of the original data sources (which were described generally). Further although the replication data did include additional measures not used in publication, these were largely undocumented, and hence difficult to reliably interpret.
 
 *\_ For replication, we adopt the definitions [here](https://i4replication.org/definitions.html). For robustness replicability, clearly state your robustness checks and how they affect the main point estimates. For direct and conceptual replications, clearly describe the new data. For conceptual replications, also describe the new procedures or they differ from the original study. Different procedures implies a different experimental design and/or analysis for experiments and different methods and/or analysis for observational data.\_*
 
-***... be** precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.*
+***... be precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.***
 
 ## Reproducibility
 
@@ -459,8 +463,6 @@ repro_m1_reweight.df %>% group_by(repl_id) %>% gt()
 
 repro_m1_reweight_summary.df %>% group_by(repl_id) %>% gt()
 ```
-
-#### Summary: Alternate OLS Specifications
 
 We see that both effects become more pronounced---first, that municipalities with higher numbers of third-country residents are substantially less likely to vote for far-right parties, and second, that municipalities with high proportions of people living in public housing are more likely to vote for far-right parties.
 
@@ -934,8 +936,6 @@ tbl_merge_ex1 <-
 
 tbl_merge_ex1
 ```
-
-### Summary - Alternate Data Replicability
 
 ## Model fit
 
