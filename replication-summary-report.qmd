@@ -37,6 +37,7 @@ library(tidyverse)
 library(magrittr,include.only="%<>%")
 library(broom)
 library(gt)
+library(patchwork)
 
 tidy_results<-function(resls){
   purrr::map(resls, \(x) tidy(x)) %>%
@@ -483,88 +484,171 @@ rm(cuts)
 First of all, we can have a look at the outliers in the main variables from Table 1 (Austrian sample). The following code visualizes the relationships between the main variables of interest: the percentage of non-EU residents, the percentage of people living in public housing, and the change in far-right vote share. From each of these variables, we drop 1% of the largest and smallest values. And then the plots compare the change in linear dependence between the variables.
 
 ```{r outliers_plots}
-library(purrr)
-
-
+library(patchwork)
+#library(purrr)
 
 ###### OUTLIERS PLOTS
 
 p1 <- austria_authors.df %>%
-  mutate(
-    outlier = ifelse(
-      (dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = T) | d_rr_06 > quantile(d_rr_06, 0.99, na.rm = T)|
-        dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = T) | d_rr_06 < quantile(d_rr_06, 0.01, na.rm = T)),
-      T, F
-    )
-  ) %>%
+  mutate(outlier = ifelse(
+    (
+      dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = T) |
+        d_rr_06 > quantile(d_rr_06, 0.99, na.rm = T) |
+        dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = T) |
+        d_rr_06 < quantile(d_rr_06, 0.01, na.rm = T)
+    ),
+    T,
+    F
+  )) %>%
   ggplot(aes(x = dv_pop_01, y = d_rr_06)) +
   geom_point(aes(color = outlier), size = 1) +
-  scale_color_manual(values = c('navy', 'red'))+
-  ggtitle('') + 
-  ylab('Δ  2002–6') + xlab('% public housing')+
-  geom_smooth(method = "lm", se = T, color = "red") + 
-  geom_smooth(data = . %>% filter(outlier == F), method = "lm", se = T, color = "blue")  +
-  geom_text(data = . %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ dv_pop_01))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.4, y = 0.2), color = "red", hjust = 0)+
-  geom_text(data = . %>% filter(outlier == 0) %>%
-            summarise(r2 = summary(lm(d_rr_06 ~ dv_pop_01))$r.squared),
-          aes(label = paste("R^2 =", round(r2, 3)), x = 0.4, y = 0.18), color = "blue", hjust = 0)
+  scale_color_manual(values = c('navy', 'red')) +
+  ggtitle('') +
+  ylab('Δ  2002–6') + xlab('% public housing') +
+  geom_smooth(method = "lm",
+              se = T,
+              color = "red") +
+  geom_smooth(
+    data = . %>% filter(outlier == F),
+    method = "lm",
+    se = T,
+    color = "blue"
+  )  +
+  geom_text(
+    data = . %>%
+      summarise(r2 = summary(lm(d_rr_06 ~ dv_pop_01))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.4,
+      y = 0.2
+    ),
+    color = "red",
+    hjust = 0
+  ) +
+  geom_text(
+    data = . %>% filter(outlier == 0) %>%
+      summarise(r2 = summary(lm(d_rr_06 ~ dv_pop_01))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.4,
+      y = 0.18
+    ),
+    color = "blue",
+    hjust = 0
+  )
 
 
 p2 <- austria_authors.df %>%
-  mutate(
-    outlier = ifelse(
-      (pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = T) | d_rr_06 > quantile(d_rr_06, 0.99, na.rm = T)|
-         pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = T) | d_rr_06 < quantile(d_rr_06, 0.01, na.rm = T)),
-      T, F
-    )
-  ) %>%
+  mutate(outlier = ifelse(
+    (
+      pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = T) |
+        d_rr_06 > quantile(d_rr_06, 0.99, na.rm = T) |
+        pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = T) |
+        d_rr_06 < quantile(d_rr_06, 0.01, na.rm = T)
+    ),
+    T,
+    F
+  )) %>%
   ggplot(aes(x = pct_noneu_06, y = d_rr_06)) +
   geom_point(aes(color = outlier), size = 1) +
-  scale_color_manual(values = c('navy', 'red'))+
-  ggtitle('') + 
-  ylab('Δ  2002–6') + xlab('% non-EU')+  
-  geom_smooth(method = "lm", se = T, color = "red") + 
-  geom_smooth(data = . %>% filter(outlier == F), method = "lm", se = T, color = "blue")  +
-  geom_text(data = . %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ pct_noneu_06))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.15, y = 0.2), color = "red", hjust = 0)+
-  geom_text(data = . %>% filter(outlier == 0) %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ pct_noneu_06))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.15, y = 0.18), color = "blue", hjust = 0)
+  scale_color_manual(values = c('navy', 'red')) +
+  ggtitle('') +
+  ylab('Δ  2002–6') + xlab('% non-EU') +
+  geom_smooth(method = "lm",
+              se = T,
+              color = "red") +
+  geom_smooth(
+    data = . %>% filter(outlier == F),
+    method = "lm",
+    se = T,
+    color = "blue"
+  )  +
+  geom_text(
+    data = . %>%
+      summarise(r2 = summary(lm(
+        d_rr_06 ~ pct_noneu_06
+      ))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.15,
+      y = 0.2
+    ),
+    color = "red",
+    hjust = 0
+  ) +
+  geom_text(
+    data = . %>% filter(outlier == 0) %>%
+      summarise(r2 = summary(lm(
+        d_rr_06 ~ pct_noneu_06
+      ))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.15,
+      y = 0.18
+    ),
+    color = "blue",
+    hjust = 0
+  )
 
 p3 <- austria_authors.df %>%
-  mutate(
-    outlier = ifelse(
-      (dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = TRUE) | 
-         d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
-         dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = TRUE) | 
-         d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE) |
-         pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = TRUE) | 
-         d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
-         pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = TRUE) | 
-         d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE)),
-      TRUE, FALSE
-    )) %>%
-  ggplot(aes(x = I(pct_noneu_06*pct_noneu_06), y = d_rr_06)) +
+  mutate(outlier = ifelse(
+    (
+      dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = TRUE) |
+        d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
+        dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = TRUE) |
+        d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE) |
+        pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = TRUE) |
+        d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
+        pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = TRUE) |
+        d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE)
+    ),
+    TRUE,
+    FALSE
+  )) %>%
+  ggplot(aes(x = I(pct_noneu_06 * pct_noneu_06), y = d_rr_06)) +
   geom_point(aes(color = outlier), size = 1) +
-  scale_color_manual(values = c('navy', 'red'))+
+  scale_color_manual(values = c('navy', 'red')) +
   ggtitle('') +  # Add your plot title
-  geom_smooth(method = "lm", se = T, color = "red") + # Add smoothed line for the whole sample
-  geom_smooth(data = . %>% filter(outlier == F), method = "lm", se = T, color = "blue")  +
-  geom_text(data = . %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ I(pct_noneu_06*pct_noneu_06)))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.04, y = 0.2), color = "red", hjust = 0)+
-  geom_text(data = . %>% filter(outlier == 0) %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ I(pct_noneu_06*pct_noneu_06)))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.04, y = 0.18), color = "blue", hjust = 0)
+  geom_smooth(method = "lm",
+              se = T,
+              color = "red") + # Add smoothed line for the whole sample
+  geom_smooth(
+    data = . %>% filter(outlier == F),
+    method = "lm",
+    se = T,
+    color = "blue"
+  )  +
+  geom_text(
+    data = . %>%
+      summarise(r2 = summary(lm(
+        d_rr_06 ~ I(pct_noneu_06 * pct_noneu_06)
+      ))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.04,
+      y = 0.2
+    ),
+    color = "red",
+    hjust = 0
+  ) +
+  geom_text(
+    data = . %>% filter(outlier == 0) %>%
+      summarise(r2 = summary(lm(
+        d_rr_06 ~ I(pct_noneu_06 * pct_noneu_06)
+      ))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.04,
+      y = 0.18
+    ),
+    color = "blue",
+    hjust = 0
+  )
 
-library(gridExtra)
-ggarrange(p1, p2, p3, nrow = 1)
+suppressWarnings(print(p1+p2+p3))
 ```
-R-squared drops substantially when dropping outliers.
 
+R-squared drops substantially when dropping outliers.
 
 -   residual analysis
 
