@@ -78,9 +78,23 @@ of Vienna. In particular, we look at census tracts---as a proxy for
 neighborhood---to see if tracts with a higher proportion of third-country
 nationals and higher proportions of individuals living in public housing tend to
 vote for far-right parties at higher rates. We find that implementing this
-conceptual replication increases the magnitudes of the main point estimate for
+conceptual replication increases the magnitude of the main point estimate for
 the interaction between these two factors, but the estimate is no longer
 statistically significant at the 5\% level.
+
+The authors fit the models in both of their main analyses at the level of
+administrative units---i.e., all municipalities are equally weighted in their
+nation-wide analysis, and all tracts are equally weighted in their analysis of
+Vienna. However, it is unclear if this weighting is substantively appropriate.
+To test the robustness of their conclusions to this, we reweight their model so
+that each administrative unit has weight equal to the number of voters it
+contains. Implementing this robustness check in their primary analysis increases
+the magnitude of their main point estimate for the the interaction of the
+proportion of residents living in public housing with the proportion of
+third-country nationals residing in a municipality, which remains significant at
+the 5\% level. Implementing this robustness check in their secondary analysis
+has no effect on the magnitude or the statistical significance of the main point
+estimates.
 
 ## Reproducibility
 
@@ -472,8 +486,6 @@ repro_m1_reweight.df %>% group_by(repl_id) %>% gt()
 
 repro_m1_reweight_summary.df %>% group_by(repl_id) %>% gt()
 ```
-
-#### Summary: Alternate OLS Specifications
 
 We see that both effects become more pronounced---first, that municipalities with higher numbers of third-country residents are substantially less likely to vote for far-right parties, and second, that municipalities with high proportions of people living in public housing are more likely to vote for far-right parties.
 
