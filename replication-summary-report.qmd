@@ -27,7 +27,7 @@ Second, we test the robustness of the conclusions to (1)... (2)...
 
 We find that ...
 
-We assessed the robustness of the findings from the Austrian sample by examining potential outliers in the central variables. We observed that the previously significant interaction effect between the share of non-EU residents and the share of public housing loses its significance when we exclude abnormally large values of key predictors. Covariate analysis highlights substantial differences between observations with outliers and those without. When we reevaluate the main argument using the sample of outliers, we find that all the initial effects become notably stronger in both magnitude and significance. This may suggest that the author's primary argument may not generalize to all Austrian districts within the sample
+We assessed the robustness of the findings from the Austrian sample by examining potential outliers in the key variables. We observed that the previously significant interaction effect between the share of non-EU residents and the share of public housing loses its significance when we exclude abnormally large values of key variables. Covariate valance analysis highlights substantial differences between observations with outliers and those without. When we reevaluate the main argument using the sample of outliers, we find that all the initial effects become notably stronger in both magnitude and significance. This may suggest that the author's primary argument may not generalize to all Austrian districts within the sample.
 
 ## Introduction
 
