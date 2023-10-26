@@ -970,6 +970,8 @@ love.plot(m.out, stats = c("mean.diffs"),
           var.order = "unadjusted")
 ```
 Finally, we apply the baseline specification to the sample of 65 outliers. In this case, we observe a significantly higher R-squared value (0.687). Moreover, all the coefficients are highly significant with p-values less than 0.001, and they exhibit comparatively large effect sizes. For instance, the coefficient of the key interaction is 3.0, which is 4.5 times higher than that of the overall sample. This suggests that the observed effect in the full sample in the paper may be largely driven by this small subsample. 
+
+We can observe that the sample of outlier observations (depicted in red on the plot) significantly differs from the rest in several aspects. Parameters such as the number of registered voters, education, income, and various other factors tend to be higher on average in this subgroup. It's worth noting that this smaller sample also exhibits higher rates of unemployment, increased welfare and education spending, as well as a more pronounced growth in the number of foreign-born residents.
 ```{r}
 out1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_up == TRUE)) %>%
   tbl_regression()%>%        
