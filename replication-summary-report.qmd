@@ -65,13 +65,9 @@ theme_set(theme_bw())
 
 We obtained the published replication data set [@Cavaille2023] from the Harvard Dataverse archive, where it had been deposited for public use by the authors. The replication data set included the final processed data used to produce the paper results, along with R code to replicate figures and tables. The data was sufficient to check computational repoducibility but posed challenges for conceptual reproducibility because it provided neither copies of the source data, nor links to or citations of the original data sources (which were described generally). Further although the replication data did include additional measures not used in publication, these were largely undocumented, and hence difficult to reliably interpret.
 
-*\_ Next, summarize your reproduction and/or replication. Start by stating how you have obtained the data and codes and if the original author(s) answered your request(s) a/nd questions. Indicate the repository where your programs and data are located. Then proceed with a description of your [conceptual reproducibility](https://i4replication.org/definitions.html) by describing if you have found coding error(s) and how they affect the main conclusions.\_*
-
 *\_ For replication, we adopt the definitions [here](https://i4replication.org/definitions.html). For robustness replicability, clearly state your robustness checks and how they affect the main point estimates. For direct and conceptual replications, clearly describe the new data. For conceptual replications, also describe the new procedures or they differ from the original study. Different procedures implies a different experimental design and/or analysis for experiments and different methods and/or analysis for observational data.\_*
 
-*For all three replication types, be precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.*
-
--   many variables in the dataset are not documented
+***... be** precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.*
 
 ## Reproducibility
 
@@ -421,16 +417,7 @@ This suggests that the evidence from Vienna specifically for the proposed mechan
 
 #### Reweighting
 
-If we had individual rather than aggregate data, we would most likely fit a
-model at the voter level, regressing whether or not an individual cast a
-vote for a far-right party in the 2006 federal election against whether they
-lived in public housing, the number of third-country nationals living in their
-neighborhood, etc. This paper uses aggregate data at the tract and municipality
-level as an approximation to the individual data. However, unless we weight the
-regression by the number of voters in a municipality, we are implicitly
-weighting voters differently in different municipalities or tracts. As a result,
-we rerun both models reweighting the observations by the number of voters in the
-administrative unit.
+If we had individual rather than aggregate data, we would most likely fit a model at the voter level, regressing whether or not an individual cast a vote for a far-right party in the 2006 federal election against whether they lived in public housing, the number of third-country nationals living in their neighborhood, etc. This paper uses aggregate data at the tract and municipality level as an approximation to the individual data. However, unless we weight the regression by the number of voters in a municipality, we are implicitly weighting voters differently in different municipalities or tracts. As a result, we rerun both models reweighting the observations by the number of voters in the administrative unit.
 
 ```{r reweighting1}
 results_m1_reweight <- estimatr::lm_robust(
@@ -447,14 +434,11 @@ repro_m1_reweight.df %>% group_by(repl_id) %>% gt()
 repro_m1_reweight_summary.df %>% group_by(repl_id) %>% gt()
 ```
 
-We see that both effects become more pronounced---first, that municipalities
-with higher numbers of third-country residents are substantially less likely to
-vote for far-right parties, and second, that municipalities with high
-proportions of people living in public housing are more likely to vote for
-far-right parties.
+#### Summary: Alternate OLS Specifications
 
-We can repeat the same analysis at the level of Vienna tracts for the second
-analysis.
+We see that both effects become more pronounced---first, that municipalities with higher numbers of third-country residents are substantially less likely to vote for far-right parties, and second, that municipalities with high proportions of people living in public housing are more likely to vote for far-right parties.
+
+We can repeat the same analysis at the level of Vienna tracts for the second analysis.
 
 ```{r reweighting2}
 results_m2_reweight <- 
@@ -473,8 +457,7 @@ repro_m2_reweight_summary.df %>% group_by(repl_id) %>% gt()
 
 In this case, the weighting makes almost no difference to the model results.
 
-We can also perform our alternative specification, where we adjust for the
-percentage of third-country residents in the Vienna analysis, with reweighting.
+We can also perform our alternative specification, where we adjust for the percentage of third-country residents in the Vienna analysis, with reweighting.
 
 ```{r reweighting3}
 results_m2_pctforeign_reweight <-
@@ -487,11 +470,9 @@ tidy_summary(list(results_m2_pctforeign_reweight)) %>% gt()
 
 Again, this doesn't seem to meaningfully affect the results.
 
-#### Summary: Covariate Robustness
+### Data Robustness Analysis
 
-### Alternate data (data robustness)
-
-#### Graphical Exploration (intraoccular impact)
+#### Graphical Exploration of Data (intraoccular impact)
 
 To better understand the authors main claims, we attempt to visualize the trends they find in the raw data. We begin with the first analysis, which links support for far-right political parties in the 2006 federal election with the proportion of third-country nationals across Austrian municipalities.
 
@@ -699,7 +680,7 @@ suppressWarnings({
 rm(cuts)
 ```
 
-#### outlier analysis
+#### Outlier analysis
 
 First of all, we can have a look at the outliers in the main variables from
 Table 1 (Austrian sample). The following code visualizes the relationships
@@ -907,10 +888,10 @@ tbl_merge_ex1 <-
 
 tbl_merge_ex1
 ```
-We can see that the initial baseline model is reproducible in terms of effect sizes and standard errors. But once we change subsamples, results change as well. We can see that the exclusion of 1% highest values for all three key variables is related to the change in the estimate for the interaction term: coefficient drops to 0.47 while p-value = 0.091 compared to the p-value <0.001 in the baseline model.
 
+We can see that the initial baseline model is reproducible in terms of effect sizes and standard errors. But once we change subsamples, results change as well. We can see that the exclusion of 1% highest values for all three key variables is related to the change in the estimate for the interaction term: coefficient drops to 0.47 while p-value = 0.091 compared to the p-value \<0.001 in the baseline model.
 
-Next, we try to cluster errors by district (bezirk). For the initial sample, the result does not change drastically (the p-value for the interaction term increases to 0.006). Yet, the significance of the term when the highest values are dropped reach even higher  p = 0.2).
+Next, we try to cluster errors by district (bezirk). For the initial sample, the result does not change drastically (the p-value for the interaction term increases to 0.006). Yet, the significance of the term when the highest values are dropped reach even higher p = 0.2).
 
 ```{r outliers_reg2}
 
@@ -941,27 +922,7 @@ tbl_merge_ex1 <-
 tbl_merge_ex1
 ```
 
--   residual analysis
-
--   perturbation analysis
-
--   subsampling analysis
-
-```{r alternate-data}
-
-```
-
-### Alternate Models (model and alternate hypothesis robustness)
-
--   specific alternate models ?
-
--   general model comparison and synthesis -- (e.g. bayesian model averaging)
-
-```{r alternate-models}
-
-```
-
-### Summary - Replicability
+### Summary - Alternate Data Replicability
 
 ## Model fit
 
@@ -1010,12 +971,6 @@ rm(sqe2)
 
 ## Conclusion
 
-*State the most important results of your work and what you have learned. You may also describe other empirical exercises that could be conducted by other replicators.*
+We find research is computationally replicable but the evidence for the main causal claims are overstated. While the focus of analysis concentrates on patterns in outcomes that are likely relevant to understanding the underlying data-generating process, the statistical models supporting the causal claims support only a small proportion of overall variance in outcomes. Furthermore, the analysis elides relevant competing models. For example, model-only main effects fit the data nearly as well as those including the interactive term that supports the main causal claim.
 
--   The research is computationally replicable, and likely reflect patterns in outcomes that are relevant to understanding the underlying data generating process.
-
--   Evidence for the overall primary and secondary causal claims is overstated. The model accounts for a small amount of the overall variance in results, and fits only marginally better than alternative simpler model with no interactions.
-
--   The overall weakness of the clims are obscured in the publications because of absence from publications of goodness-of-fit and naive prediction comparisons.
-
--   Conceptual reproducibility anlaysis is needed to further probe results, but obstructed by the absence of citations, documentation and linking codes that would enable reanalysis from original sources, or augmentation with richer data.
+The relative weakness of the claim is obscured in the public analysis because neither overall goodness of fit, nor comparison to 'naive' / baseline models are include. While conceptual reproducibility analysis would be useful for exploring more complex alternate models this route is obstructed by the absence of citations, documentation and linking codes that would support reliable reanalysis using original data, or augmentation of the authors' data with additional measures. We conjecture that, as a general practice, research reliability would be increased by including these practices in publication and data sharing.
