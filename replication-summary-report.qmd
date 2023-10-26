@@ -906,9 +906,9 @@ tbl_merge_ex1 <-
 tbl_merge_ex1
 ```
 
-We can see that the initial baseline model is reproducible in terms of effect sizes and standard errors. But once we change subsamples, results change as well. We can see that the exclusion of 1% highest values for all three key variables is related to the change in the estimate for the interaction term: coefficient drops to 0.47 while p-value = 0.091 compared to the p-value \<0.001 in the baseline model.
+We can observe that the initial baseline model demonstrates reproducibility in terms of effect sizes and standard errors. However, once we alter the subsamples, we notice a shift in the results. Specifically, when we exclude the top 1% of the highest values for all three key variables, it leads to a change in the estimate for the interaction term. The coefficient drops to 0.47, with a p-value of 0.091, in contrast to the baseline model where the p-value was less than 0.001.
 
-Next, we try to cluster errors by district (bezirk). For the initial sample, the result does not change drastically (the p-value for the interaction term increases to 0.006). Yet, the significance of the term when the highest values are dropped reach even higher p = 0.2).
+Moving forward, we explore the impact of clustering errors by district (**bezirk**). In the initial sample, this adjustment does not lead to a significant alteration (the p-value for the interaction term increases to 0.006). However, it's noteworthy that when we exclude the highest values, the significance of the term lowers with a p-value of 0.2
 
 ```{r outliers_reg2}
 
