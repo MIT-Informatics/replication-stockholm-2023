@@ -774,6 +774,72 @@ rm(p1,p2,p3)
 
 R-squared drops substantially when dropping outliers.
 
+Now, we replicate the baseline model from Table 1 (regression of far-right vote change on public housing, non-EU and residents and their interaction).
+
+```{r outliers_reg1}
+requireNamespace("lfe")
+requireNamespace("gtsummary")
+
+ols1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =austria_authors.df) %>%
+  tbl_regression(tidy_fun = purrr::partial(tidy_robust, robust = "HC1"))%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))
+ols2 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98 == FALSE)) %>%
+  tbl_regression()%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))       
+ols3 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98_up == FALSE)) %>%
+  tbl_regression()%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))
+ols4 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98_down == FALSE)) %>%
+  tbl_regression()%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))
+
+
+tbl_merge_ex1 <-
+  tbl_merge(
+    tbls = list(ols1, ols2, ols3, ols4),
+    tab_spanner = c("**Original Specification**", "1% Min-Max Dropped", "1% Max Dropped", "1% Min Dropped")
+  )
+
+tbl_merge_ex1
+```
+We can see that the initial baseline model is reproducible in terms of effect sizes and standard errors. But once we change subsamples, results change as well. We can see that the exclusion of 1% highest values for all three key variables is related to the change in the estimate for the interaction term: coefficient drops to 0.47 while p-value = 0.091 compared to the p-value <0.001 in the baseline model.
+
+
+Next, we try to cluster errors by district (bezirk). For the initial sample, the result does not change drastically (the p-value for the interaction term increases to 0.006). Yet, the significance of the term when the highest values are dropped reach even higher  p = 0.2).
+
+```{r outliers_reg2}
+
+rols1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =austria_authors.df) %>%
+  tbl_regression(tidy_fun = purrr::partial(tidy_robust, robust = "HC1"))%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))
+rols2 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98 == FALSE)) %>%
+  tbl_regression()%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))       
+rols3 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_up == FALSE)) %>%
+  tbl_regression()%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))
+rols4 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_down == FALSE)) %>%
+  tbl_regression()%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))
+
+
+tbl_merge_ex1 <-
+  tbl_merge(
+    tbls = list(rols1, rols2, rols3, rols4),
+    tab_spanner = c("**Original Specification**", "1% Min-Max Dropped", "1% Max Dropped", "1% Min Dropped")
+  )
+
+tbl_merge_ex1
+```
+
 -   residual analysis
 
 -   perturbation analysis
