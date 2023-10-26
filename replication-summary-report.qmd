@@ -55,6 +55,7 @@ glance.summary.glm <- function(x,...) {
  x[c("aic","df.residual")] %>% as_tibble()
 }
 
+theme_set(theme_bw())
 ```
 
 *Briefly describe the main data sources, method, policy or treatment, time period and population for which the estimates apply. Then describe the main scientific claims (descriptive or causal) and robustness checks if those that are relevant for your re-analysis or replication. Quote the original part of the study that has the main scientific claim(s) including page number(s). As suggested in the Guide for Accelerating Computational Reproducibility in the Social Sciences (<https://bitss.github.io/ACRE/>), structure your summary of the main findings and methodology as follows: "The paper tested the effect of X on Y for population P, using method M. The main results show an effect of magnitude E (specify units and standard errors)" or "The paper estimated the value of Y (estimated or predicted) for population P under dimensions X using method M. The main results presented an estimate of magnitude E (specify units and standard errors)". This template assumes that the paper's scientific claims are focused on estimating a causal relationship. In the event that the original study is estimating/predicting a descriptive statistic of a population, or something else, then describe and quote the results accordingly using precise claims from the original study.*
@@ -278,6 +279,136 @@ alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
 ### Alternate data (data robustness)
 
 -   intraoccular impact
+
+```{r intraoccular}
+## AUSTRIA
+# Plot the relationship between % non-EU and change in vote share
+austria_authors.df %>%
+  ggplot(aes(x = pct_noneu_06, y = d_rr_06)) +
+  geom_point() +
+  labs(
+    x = "% non-EU residents in municipality",
+    y = "Change in far-right vote share"
+  ) +
+  # NOTE: There are ~200 municipalities with 0 non-EU residents
+  scale_x_log10() +
+  geom_smooth(method = lm)
+
+# Plot the relationship between % non-EU and vote share
+austria_authors.df %>%
+  ggplot(aes(x = pct_noneu_06, y = rr_share_06)) +
+  geom_point() +
+  labs(
+    x = "% non-EU residents in municipality",
+    y = "Far-right vote share"
+  ) +
+  # NOTE: There are ~200 municipalities with 0 non-EU residents
+  scale_x_log10() +
+  geom_smooth(method = lm)
+
+# Compare vote share in 2002 and 2006
+austria_authors.df %>%
+  select(pct_noneu_06, rr_share_06, rr_share_02) %>%
+  pivot_longer(
+    cols = starts_with("rr_share"),
+    names_prefix = "rr_share_",
+    names_to = "year",
+    values_to = "vote_share"
+  ) %>%
+  ggplot(aes(x = pct_noneu_06, y = vote_share)) +
+  geom_point() +
+  labs(
+    x = "% non-EU residents in municipality",
+    y = "Far-right vote share"
+  ) +
+  # NOTE: There are ~200 municipalities with 0 non-EU residents
+  scale_x_log10() +
+  geom_smooth(method = lm) +
+  facet_wrap(vars(year))
+
+# Bin the percentage of the municipality in public housing and plot the
+# change in vote share by % non-EU residents
+cuts <- with(austria_authors.df, quantile(dv_pop_01, probs = seq(0, 1, 1/3),
+                                          na.rm = TRUE))
+austria_authors.df %>%
+  mutate(pct_public_housing = cut(dv_pop_01, breaks = cuts, include.lowest = TRUE)) %>%
+  # ~ 13 municipalities don't have data on public housing
+  drop_na(pct_public_housing) %>%
+  ggplot(aes(x = pct_noneu_06, y = d_rr_06)) +
+  geom_point() +
+  labs(
+    x = "% non-EU residents in municipality",
+    y = "Change in far-right vote share"
+  ) +
+  # NOTE: There are ~200 municipalities with 0 non-EU residents
+  scale_x_log10() +
+  geom_smooth(method = lm) +
+  facet_wrap(vars(pct_public_housing))
+
+# Add coloring based on how far-right the municipality was in the previous
+# election
+austria_authors.df %>%
+  mutate(pct_public_housing = cut(dv_pop_01, breaks = cuts, include.lowest = TRUE)) %>%
+  # ~ 13 municipalities don't have data on public housing
+  drop_na(pct_public_housing) %>%
+  ggplot(aes(x = pct_noneu_06, y = d_rr_06, color = rr_share_02)) +
+  geom_point() +
+  labs(
+    x = "% non-EU residents in municipality",
+    y = "Change in far-right vote share",
+    color = "% far-right in\nprevious election"
+  ) +
+  # NOTE: There are ~200 municipalities with 0 non-EU residents
+  scale_x_log10() +
+  scale_color_gradient(low = "blue", high = "red") +
+  geom_smooth(method = lm) +
+  facet_wrap(vars(pct_public_housing))
+
+## VIENNA
+# Plot the relationship between % non-EU and change in vote share
+vienna_authors.df %>%
+  ggplot(aes(x = pctforeign, y = dv)) +
+  geom_point() +
+  labs(
+    x = "% non-EU residents in tract",
+    y = "Change in far-right vote share"
+  ) +
+  # NOTE: There are ~15 tracts with no foreign residents
+  scale_x_log10() +
+  geom_smooth(method = lm)
+
+# Plot the relationship between % in public housing and change in vote share
+vienna_authors.df %>%
+  ggplot(aes(x = pctpublic_w_zsp, y = dv)) +
+  geom_point() +
+  labs(
+    x = "% of residents in public housing",
+    y = "Change in far-right vote share"
+  ) +
+  # NOTE: There are ~900 tracts with no one in public housing
+  scale_x_log10() +
+  geom_smooth(method = lm)
+
+# Plot the relationship between % non-EU and change in vote share, stratified by
+# the rate of public housing
+cuts <- with(vienna_authors.df, quantile(pctpublic_w_zsp, probs = c(0, 1/2, 3/4, 1),
+                                         na.rm = TRUE))
+vienna_authors.df %>%
+  mutate(public_housing = cut(pctpublic_w_zsp, cuts, include.lowest = TRUE)) %>%
+  ggplot(aes(x = pctforeign, y = dv)) +
+  geom_point() +
+  labs(
+    x = "% non-EU residents in tract",
+    y = "Change in far-right vote share"
+  ) +
+  # NOTE: There are ~15 tracts with no foreign residents
+  scale_x_log10() +
+  geom_smooth(method = lm) +
+  facet_wrap(vars(public_housing))
+
+rm(cuts)
+```
+
 
 -   outlier analysis
 
