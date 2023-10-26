@@ -61,17 +61,19 @@ glance.summary.glm <- function(x,...) {
 theme_set(theme_bw())
 ```
 
-Cavaillé and Ferwerda [@cavaillé2023] tested the ffect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. We focus on their two main claims, as described in the abstract (pg 19):
+Cavaillé and Ferwerda [@cavaillé2023] tested the effect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. We focus on their two main claims, as described in the abstract (pg 19):
 
-> we show that the **reform increased support for far-right parties with welfare chauvinist platforms**. Electoral ward data suggest that this **response was concentrated in districts with a high proportion of public housing beneficiaries or low-end rentals.** Our findings provide novel evidence that **distributional conflict can accelerate the rise of far-right parties in countries with substantialin-kind welfare programs**
+> we show that the **reform increased support for far-right parties with welfare chauvinist platforms**. Electoral ward data suggest that this **response was concentrated in districts with a high proportion of public housing beneficiaries or low-end rentals.** Our findings provide novel evidence that **distributional conflict can accelerate the rise of far-right parties in countries with substantial in-kind welfare programs**
 
 In their preferred specification, using OLS with clustered standard errors, they find that -- the interaction of the proportion of non-eu residents in a municipality with the proportion of population in that municipality has an effect on the change in vote share for far right parties of +0.67 (p \< .05) (pg 26, Table 1, col 1) supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties (pg. 19). Moderating this, based on a subset of data from Vienna, they find that -- percentage of population in rental housing and the percentage of population in public housing are both substantive and significant predictors of change in far-right party vote share with magnitude of .03 and .09 (respectively) and p-values of \< .05. (pg 30, Table 2, col 1). Based on this estimate they conclude that support was accelerated by the the high proportion of public housing beneficiaries or low-end rentals within districts. (pg 19.)
 
 We obtained the published replication data set [@Cavaille2023] from the Harvard Dataverse archive, where it had been deposited for public use by the authors. The replication data set included the final processed data used to produce the paper results, along with R code to replicate figures and tables. The data was sufficient to check computational repoducibility but posed challenges for conceptual reproducibility because it provided neither copies of the source data, nor links to or citations of the original data sources (which were described generally). Further although the replication data did include additional measures not used in publication, these were largely undocumented, and hence difficult to reliably interpret.
 
-*\_ For replication, we adopt the definitions [here](https://i4replication.org/definitions.html). For robustness replicability, clearly state your robustness checks and how they affect the main point estimates. For direct and conceptual replications, clearly describe the new data. For conceptual replications, also describe the new procedures or they differ from the original study. Different procedures implies a different experimental design and/or analysis for experiments and different methods and/or analysis for observational data.\_*
+We first reproduced the paper's main and secondary analyses, and subject these to computational robustness tests. The computational reproductions showed both the main and secondary results to be reproducible. As an unintended consequence reproducing the results revealed the substantively poor fit of these models: the primary model has an R-squared of .0356. This finding informed further replication analysis.
 
-***... be precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.***
+We then conducted several types of conceptual replication -- examining the robustness of results to selection of covariates, reweighting, and the sensitivity of results to resampling and outliers.
+
+Prompted by the unexectedly poor fit of the primary model, we performed a conceptual replication that applied the authors linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation. This reveals that the interaction term does not provide substantial improvement in explanatory power over a more naive baseline.
 
 The authors suggest, in their first analysis of nation-wide election data, that voters in municipalities with high proportions of residents living in public housing as well as comparatively high proportions of third-country nationals voted more for far-right parties as a result of the demand shock on public housing. We undertake a conceptual replication of this result using their data on the city of Vienna. In particular, we look at census tracts---as a proxy for neighborhood---to see if tracts with a higher proportion of third-country nationals and higher proportions of individuals living in public housing tend to vote for far-right parties at higher rates. We find that implementing this conceptual replication increases the magnitude of the main point estimate for the interaction between these two factors, but the estimate is no longer statistically significant at the 5% level.
 
@@ -79,9 +81,9 @@ The authors fit the models in both of their main analyses at the level of admini
 
 Next, to better understand the authors main claims, how well their models fit the data, and to search for potential anomalies not evident in low-dimensional summaries, we attempted to visually replicate their primary and secondary analyses. Based on this graphical exploration, we carried out an outlier analysis.
 
-Finally, given the substantive importance placed on the interaction term in the authors' primary analysis, as well as the generally low goodness-of-fit of the models considered, we evaluated the main models of the primary and secondary analyses using out-of-sample tests of predictive accuracy. We find in both cases that the models with and without the interaction term have essentially the same mean squared error, suggesting that the substantive interpretation of the interaction effect may not be appropriate.
-
 We assessed the robustness of the findings from the Austrian sample by examining potential outliers in the key variables. We observed that the previously significant interaction effect between the share of non-EU residents and the share of public housing loses its significance when we exclude abnormally large values of key variables. Covariate valance analysis highlights substantial differences between observations with outliers and those without. When we reevaluate the main argument using the sample of outliers, we find that all the initial effects become notably stronger in both magnitude and significance. This may suggest that the author's primary argument may not generalize to all Austrian districts within the sample.
+
+Finally, given the substantive importance placed on the interaction term in the authors' primary analysis, as well as the generally low goodness-of-fit of the models considered, we evaluated the main models of the primary and secondary analyses using out-of-sample tests of predictive accuracy. We find in both cases that the models with and without the interaction term have essentially the same mean squared error, suggesting that the substantive interpretation of the interaction effect may not be appropriate.
 
 ## Reproducibility
 
@@ -179,9 +181,9 @@ repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 
 #### Summary - Direct Reproducibility
 
-The computational reproductions showed both the main and secondary results to be reproducible, and robust to alternative choices of algorithm and software implementation.
+The computational reproductions showed both the main and secondary results to be reproducible.
 
-As an unintended benefit, reproducing the results revealed the substantively poor fit of these models: the primary model has an R-squared of .0356. This finding informed the replication analysis.
+As an unintended consequence, reproducing the results revealed the substantively poor fit of these models: the primary model has an R-squared of .0356. This finding informed the replication analysis.
 
 ### Computational robustness
 
@@ -247,13 +249,13 @@ rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 
 #### Summary - Computation Robustness of Reproducibility
 
--   Robust to variations of software and algorithm
+The computational reproductions showed both the main and secondary results to be robust to alternative choices of algorithm and software implementation.
 
 ## Replication:
 
-*Clearly state/describe which type of replication you are conducting. See definitions at the beginning of this document. For robustness replicability, present your robustness checks and how they impact the main point estimates one by one so that it is clear how each modification to the specification/analysis impacts the main conclusions. Then you may combine them. Also, clearly state why you conduct each specific robustness check and/or modify the setting/model.*
+### Conceptual Replication: Alternate OLS Specification (covariate robustness)
 
-### Alternate OLS Specification (covariate robustness)
+Prompted by the unexectedly poor fit of the primary model, we performed a conceptual replication that applied the authors linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation.
 
 #### Alternate Covariates & Model 1
 
@@ -342,6 +344,8 @@ rm(
 )
 ```
 
+Observe that none of the alternative models fit the data well. Moreover, models without interaction effects provide only slightly lower explanatory power.
+
 #### Alternate Covariates & Model 2
 
 ```{r alternate-variables-m2}
@@ -396,6 +400,8 @@ rm(
   results_m2_rental.lmr
 )
 ```
+
+Observe as withthe primary finding that none of the alternative models fit the data well, and that models without interaction effects provide only slightly lower explanatory power. Further, when the orignal model applied to the country as a whole (as above) for the main findingt is fit to this subset, the interaction term is not significant.
 
 #### Proportion of third-country nationals
 
