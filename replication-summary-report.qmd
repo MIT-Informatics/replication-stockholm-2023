@@ -104,6 +104,14 @@ summaries, we attempted to visually replicate their primary and secondary
 analyses. Based on this graphical exploration, we carried out an outlier
 analysis.
 
+Finally, given the substantive importance placed on the interaction term in the
+authors' primary analysis, as well as the generally low goodness-of-fit of the
+models considered, we evaluated the main models of the primary and secondary
+analyses using out-of-sample tests of predictive accuracy. We find in both cases
+that the models with and without the interaction term have essentially the same
+mean squared error, suggesting that the substantive interpretation of the
+interaction effect may not be appropriate.
+
 ## Reproducibility
 
 ### Simple Direct Reproduction (Calibration)
@@ -1014,7 +1022,7 @@ tbl_merge_ex2
 
 ### Summary - Alternate Data Replicability
 
-## Model fit
+### Model fit
 
 ```{r}
 sqe1 <- double(nrow(austria_authors.df))
