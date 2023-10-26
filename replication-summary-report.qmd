@@ -144,7 +144,7 @@ tidy_m2_original.df <-
         "pctrental",
         "pctpublic_w_zsp"
       ),
-      estimate = c(0.04, 0.03,-0.09),
+      estimate = c(0.04, 0.03, 0.09),
       std.error = c(0.01, 0.01, 0.01),
       p.value = c(0.05, 0.05,  0.05),
       repl_id = c("original", "original", "original")
@@ -380,7 +380,7 @@ individuals have a preference for continuing to live near their current
 residence, we would expect that voters living in areas with more third-country
 nationals would tend to be more supportive of far-right parties.
 
-```{r}
+```{r vienna-mechanism1}
 results_m2_pctforeign <-
   estimatr::lm_robust(dv ~ pctforeign * pctpublic_w_zsp, data = vienna_authors.df,
                       clusters = tract_key)
@@ -405,7 +405,7 @@ see if voters living in areas with few third-country nationals were also more
 likely to vote for far-right parties in 2002. To ensure that the controls make
 sense, we reverse-engineer `pctforeign02`.
 
-```{r}
+```{r vienna-mechanism2}
 placebo_df <- vienna_authors.df %>%
   mutate(pctforeign02 = pctforeign / (1 + pctforeign_delta))
 results_m2_pctforeign_placebo <-
@@ -438,10 +438,71 @@ public housing resources pushes voters to support far-right parties---is weak.
 
 #### Reweighting
 
-```{r}
+If we had individual rather than aggregate data, we would most likely fit a
+model at the voter level, regressing whether or not an individual cast a
+vote for a far-right party in the 2006 federal election against whether they
+lived in public housing, the number of third-country nationals living in their
+neighborhood, etc. This paper uses aggregate data at the tract and municipality
+level as an approximation to the individual data. However, unless we weight the
+regression by the number of voters in a municipality, we are implicitly
+weighting voters differently in different municipalities or tracts. As a result,
+we rerun both models reweighting the observations by the number of voters in the
+administrative unit.
 
+```{r reweighting1}
+results_m1_reweight <- estimatr::lm_robust(
+  d_rr_06 ~ dv_pop_01 * pct_noneu_06, data = austria_authors.df,
+  weights = registered_06)
+
+repro_m1_reweight.df <- tidy_results(list(comp = results_m1_reweight)) %>%
+   bind_rows(tidy_m1_original.df)
+
+repro_m1_reweight_summary.df <- tidy_summary(list(comp = results_m1_reweight))
+
+repro_m1_reweight.df %>% group_by(repl_id) %>% gt()
+
+repro_m1_reweight_summary.df %>% group_by(repl_id) %>% gt()
 ```
 
+We see that both effects become more pronounced---first, that municipalities
+with higher numbers of third-country residents are substantially less likely to
+vote for far-right parties, and second, that municipalities with high
+proportions of people living in public housing are more likely to vote for
+far-right parties.
+
+We can repeat the same analysis at the level of Vienna tracts for the second
+analysis.
+
+```{r reweighting2}
+results_m2_reweight <- 
+  estimatr::lm_robust(dv ~ pctrental + pctpublic_w_zsp, data = vienna_authors.df,
+                      weights = exp(log_voters), clusters = tract_key)
+
+repro_m2_reweight.df <- tidy_results(list(comp = results_m2_reweight)) %>%
+  bind_rows(tidy_m2_original.df)
+
+repro_m2_reweight_summary.df <- tidy_summary(list(comp = results_m2_reweight))
+
+repro_m2_reweight.df %>% group_by(repl_id) %>% gt()
+
+repro_m2_reweight_summary.df %>% group_by(repl_id) %>% gt()
+```
+
+In this case, the weighting makes almost no difference to the model results.
+
+We can also perform our alternative specification, where we adjust for the
+percentage of third-country residents in the Vienna analysis, with reweighting.
+
+```{r reweighting3}
+results_m2_pctforeign_reweight <-
+  estimatr::lm_robust(dv ~ pctforeign * pctpublic_w_zsp, data = vienna_authors.df,
+                      weights = exp(log_voters), clusters = tract_key)
+
+tidy_results(list(results_m2_pctforeign_reweight)) %>% gt()
+tidy_summary(list(results_m2_pctforeign_reweight)) %>% gt()
+```
+
+Again, this doesn't seem to meaningfully affect the results.
 
 #### Summary: Covariate Robustness
 
