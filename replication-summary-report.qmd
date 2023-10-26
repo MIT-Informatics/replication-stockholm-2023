@@ -77,6 +77,8 @@ We obtained the published replication data set [@Cavaille2023] from the Harvard 
 
 ### Simple Direct Reproduction (Calibration)
 
+As a baseline check of the model, and our understanding of it we conducted a simple computational replication, using the authors' supplied data and code, and compared these to published results.
+
 #### Reproduction of Table 1 - Model 1 (Primary Result)
 
 ```{r main-result-reproduction}
@@ -167,13 +169,9 @@ repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 
 #### Summary - Direct Reproducibility
 
--   Main result - reproducible with original data & code
+The computational reproductions showed both the main and secondary results to be reproducible, and robust to alternative choices of algorithm and software implementation.
 
--   Secondary result - reproducible with original data & code
-
--   Comments: specific p-values, measures of fit, cluster variable missingness
-
-    -   Appendix does provide some additional detail on number of observations -- though not for models in table & 2 -- provides no additional measures of fit, or precision on p-values
+As an unintended benefit, reproducing the results revealed the substantively poor fit of these models: the primary model has an R-squared of .0356. This finding informed the replication analysis.
 
 ### Computational robustness
 
@@ -246,12 +244,6 @@ rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 *Clearly state/describe which type of replication you are conducting. See definitions at the beginning of this document. For robustness replicability, present your robustness checks and how they impact the main point estimates one by one so that it is clear how each modification to the specification/analysis impacts the main conclusions. Then you may combine them. Also, clearly state why you conduct each specific robustness check and/or modify the setting/model.*
 
 ### Alternate OLS Specification (covariate robustness)
-
--   Alternate covariate specification
-
--   Simpler model
-
--   Clustered standard errors
 
 #### Alternate Covariates & Model 1
 
@@ -937,7 +929,7 @@ tbl_merge_ex1 <-
 tbl_merge_ex1
 ```
 
-## Model fit
+### Model fit
 
 ```{r}
 sqe1 <- double(nrow(austria_authors.df))
