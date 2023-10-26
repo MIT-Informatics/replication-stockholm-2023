@@ -969,9 +969,7 @@ love.plot(m.out, stats = c("mean.diffs"),
           binary = "std",
           var.order = "unadjusted")
 ```
-
-And we replicate the authors main specification on the sample of outliers:
-
+Finally, we apply the baseline specification to the sample of 65 outliers. In this case, we observe a significantly higher R-squared value (0.687). Moreover, all the coefficients are highly significant with p-values less than 0.001, and they exhibit comparatively large effect sizes. For instance, the coefficient of the key interaction is 3.0, which is 4.5 times higher than that of the overall sample. This suggests that the observed effect in the full sample in the paper may be largely driven by this small subsample. 
 ```{r}
 out1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_up == TRUE)) %>%
   tbl_regression()%>%        
