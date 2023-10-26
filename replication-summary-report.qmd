@@ -604,7 +604,7 @@ suppressWarnings({
 rm(cuts)
 ```
 
--   outlier analysis
+#### outlier analysis
 
 First of all, we can have a look at the outliers in the main variables from Table 1 (Austrian sample). The following code visualizes the relationships between the main variables of interest: the percentage of non-EU residents, the percentage of people living in public housing, and the change in far-right vote share. From each of these variables, we drop 1% of the largest and smallest values. And then the plots compare the change in linear dependence between the variables.
 
@@ -768,7 +768,7 @@ p3 <- austria_authors.df %>%
     hjust = 0
   )
 
-suppressWarnings(print(p1+p2+p3))
+suppressWarnings(print({p1+p2+p3}))
 rm(p1,p2,p3)
 ```
 
