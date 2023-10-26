@@ -849,6 +849,32 @@ Now, we replicate the baseline model from Table 1 (regression of far-right vote 
 library("lfe")
 library("gtsummary")
 
+austria_authors.df_upd <- austria_authors.df %>%
+  mutate(
+    outlier98 = ifelse(
+      (dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = TRUE) | 
+         d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
+         dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = TRUE) | 
+         d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE) |
+         pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = TRUE) | 
+         d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
+         pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = TRUE) | 
+         d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE)),
+      TRUE, FALSE),
+      outlier98_up = ifelse(
+        (dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = TRUE) | 
+           pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = TRUE) | 
+           d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE)), 
+        TRUE, FALSE),
+        outlier98_down = ifelse(
+      (dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = TRUE) | 
+         pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = TRUE)|
+         d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE)), 
+      TRUE, FALSE)
+    )
+  )
+
+
 ols1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =austria_authors.df) %>%
   tbl_regression(tidy_fun = purrr::partial(tidy_robust, robust = "HC1"))%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
