@@ -69,6 +69,8 @@ theme_set(theme_bw())
 
 *For all three replication types, be precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.*
 
+-   many variables in the dataset are not documented
+
 ## Reproducibility
 
 ### Simple Direct Reproduction (Calibration)
@@ -134,7 +136,6 @@ m2.formula<- formula("dv ~  (pctrental + pctpublic_w_zsp)")
 results_m2_computational.lmr <-
   estimatr::lm_robust(m2.formula,   data = vienna_authors.df, 
                       clusters = tract_key)
-
 tidy_m2_original.df <-
   structure(
     list(
@@ -221,7 +222,7 @@ results_m2_statbayeslm.glm <-
 
 #Note: could also add nls, bayesglm, mle2 -- would require re-expressing current formula in different syntax, and renaming results matrix
 
-ml.ls <- list(lmrobust = results_m1_computational.lmr,
+ml.ls <- list(lmrobust = results_m2_computational.lmr,
               lm=results_m2_statlm.lm,
               glm=results_m2_statglm.glm,
               bayes=results_m2_statbayeslm.glm)
@@ -250,18 +251,50 @@ rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 
 -   Clustered standard errors
 
+#### Alternate Covariates & Model 1
+
 ```{r alternate-variables-m1}
 
-#NOTE: could also explore  alternate methods for computing robust standard errors? (e.g. sensemaker, lmtest, sandwich)
+#NOTE: could also explore  alternate methods for computing robust standard errors (e.g. sensemaker, lmtest, sandwich)
 
-results_m1_clustered.lmr <-
-  estimatr::lm_robust(m1.formula, data = austria_authors.df, clusters = bezirk)
+results_m1_clustered.lmr <-  estimatr::lm_robust(m1.formula, data = austria_authors.df, clusters = bezirk)
 
 results_m1_interactionsonly.lmr <-
-  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"), data = austria_authors.df)
+  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"),
+                      data = austria_authors.df)
 
 results_m1_kitchensink.lmr <-
-  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"), data = austria_authors.df)
+  estimatr::lm_robust(
+    formula(
+      "d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"
+    ),
+    data = austria_authors.df
+  )
+
+results_m1_kitchensinkmain.lmr <-
+  estimatr::lm_robust(
+    formula(
+      "d_rr_06 ~ dv_pop_01+pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"
+    ),
+    data = austria_authors.df
+  )
+
+# vacancy has high missingbess
+results_m1_kitchensink_novacancy.lmr <-
+  estimatr::lm_robust(
+    formula(
+      "d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct "
+    ),
+    data = austria_authors.df
+  )
+
+results_m1_kitchensinkmain_novacancy.lmr <-
+  estimatr::lm_robust(
+    formula(
+      "d_rr_06 ~ dv_pop_01+pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct "
+    ),
+    data = austria_authors.df
+  )
 
 results_m1_mainonly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 + pct_noneu_06 "), data = austria_authors.df)
@@ -273,27 +306,74 @@ results_m1_poponly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 "), data = austria_authors.df)
 
 
-ml.ls <- list( author_model1 = results_m1_computational.lmr,
-              author_clusterederr =results_m1_clustered.lmr,
-              loaded_model =results_m1_kitchensink.lmr,
-              interaction =results_m1_interactionsonly.lmr,
-              maineffects =results_m1_mainonly.lmr,
-              single_eu =results_m1_euonly.lmr,
-              single_pop =results_m1_poponly.lmr)
+ml.ls <- list(
+  author_model1 = results_m1_computational.lmr,
+  author_clusterederr = results_m1_clustered.lmr,
+  loaded_model = results_m1_kitchensink.lmr,
+  loaded_main = results_m1_kitchensinkmain.lmr,
+  loaded_nv = results_m1_kitchensink_novacancy.lmr,
+  loaded_main_nv = results_m1_kitchensinkmain_novacancy.lmr,
+  interaction = results_m1_interactionsonly.lmr,
+  maineffects = results_m1_mainonly.lmr,
+  single_eu = results_m1_euonly.lmr,
+  single_pop = results_m1_poponly.lmr
+)
 
 alt_var_m1.df <- tidy_results(ml.ls)
 alt_var_m1_summary.df <- tidy_summary(ml.ls)
 
 alt_var_m1.df  %>% group_by(repl_id) %>% gt()
 alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
-rm(ml.ls, results_m1_clustered.lmr,
-   results_m1_kitchensink.lmr, results_m1_interactionsonly.lmr,
-   results_m1_mainonly.lmr, results_m1_euonly.lmr, results_m1_poponly.lmr)
+
+rm(
+  ml.ls,
+  results_m1_clustered.lmr,
+  results_m1_kitchensink.lmr,
+  results_m1_interactionsonly.lmr,
+  results_m1_kitchensink_novacancy.lmr,
+  results_m1_kitchensinkmain_novacancy.lmr,
+  results_m1_mainonly.lmr,
+  results_m1_euonly.lmr,
+  results_m1_poponly.lmr,
+  results_m1_kitchensinkmain.lmr
+)
 ```
+
+#### Alternate Covariates & Model 2
+
+```{r alternate-variables-m2}
+
+#m2.formula<- formula("dv ~  (pctrental + pctpublic_w_zsp)")
+#results_m2_computational.lmr <-
+#  estimatr::lm_robust(m2.formula,   data = vienna_authors.df, 
+#                      clusters = tract_key)
+
+ estimatr::lm_robust(dv ~pcrental+public_w_zsp,   data = vienna_authors.df, 
+                    clusters = tract_key)
+
+ml.ls <- list(
+  author_model2 = results_m2_computational.lmr
+)
+
+
+
+est
+alt_var_m2.df <- tidy_results(ml.ls)
+alt_var_m2_summary.df <- tidy_summary(ml.ls)
+
+alt_var_m2.df  %>% group_by(repl_id) %>% gt()
+alt_var_m2_summary.df %>% group_by(repl_id) %>% gt()
+
+rm(
+  ml.ls
+)
+```
+
+#### Summary: Covariate Robustness
 
 ### Alternate data (data robustness)
 
-#### intraoccular impact
+#### Graphical Exploration (intraoccular impact)
 
 To better understand the authors main claims, we attempt to visualize the trends they find in the raw data. We begin with the first analysis, which links support for far-right political parties in the 2006 federal election with the proportion of third-country nationals across Austrian municipalities.
 
