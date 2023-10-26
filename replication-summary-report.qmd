@@ -171,7 +171,7 @@ repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 
 -   use glm, lm fitters to check implementation robustness
 
--   could also use nls, bayesglm, mle2 \-- would require reexpressing current formula in different syntax
+-   could also use nls, bayesglm, mle2 \-- would require re-expressing current formula in different syntax
 
 ```{r alternate-estimations-m1}
 
@@ -210,10 +210,7 @@ alt_est_m1_summary.df %>% group_by(repl_id) %>% gt()
 
 -   alternate methods for computing robust standard errors? (e.g. sensemaker, lmtest, sandwich)
 
--   
-
 ```{r alternate-variables-m1}
-
 
 results_m1_nomain.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"), data = austria_authors.df)
@@ -238,11 +235,15 @@ alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
 
 ### Alternate data (data robustness)
 
+-   intraoccular impact
+
 -   outlier analysis
 
 -   residual analysis
 
 -   perturbation analysis
+
+-   subsampling analysis
 
 ```{r alternate-data}
 
