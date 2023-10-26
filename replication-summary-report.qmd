@@ -345,14 +345,36 @@ rm(
 #  estimatr::lm_robust(m2.formula,   data = vienna_authors.df, 
 #                      clusters = tract_key)
 
- results_m2_interaction.lmr <- estimatr::lm_robust(formula("dv ~ pctrental*pctpublic_w_zsp"),
-                     data = vienna_authors.df, 
-                    clusters = tract_key)
 
-ml.ls <- list(
-  author_model2 = results_m2_computational.lmr,
-  model2_interaction = results_m2_interaction.lmr
-)
+# m1.formula  <- formula("d_rr_06 ~ dv_pop_01*pct_noneu_06")
+
+results_m2_interaction.lmr <-
+  estimatr::lm_robust(formula("dv ~ pctrental*pctpublic_w_zsp"),
+                      data = vienna_authors.df,
+                      clusters = tract_key)
+
+results_m2_m1model.lmr <-
+  estimatr::lm_robust(formula("dv ~ pctpublic_w_zsp*pctforeign"),
+                      data = vienna_authors.df,
+                      clusters = tract_key)
+
+results_m2_rental.lmr <-
+  estimatr::lm_robust(formula("dv ~ pctrental"),
+                      data = vienna_authors.df,
+                      clusters = tract_key)
+
+results_m2_housing.lmr <-
+  estimatr::lm_robust(formula("dv ~ pctpublic_w_zsp"),
+                      data = vienna_authors.df,
+                      clusters = tract_key)
+
+
+ml.ls <- list(author_model2 = results_m2_computational.lmr,
+              interaction = results_m2_interaction.lmr,
+              m1spec = results_m2_m1model.lmr,
+              housing_only = results_m2_housing.lmr,
+              rental_only = results_m2_rental.lmr
+              )
 
 alt_var_m2.df <- tidy_results(ml.ls)
 alt_var_m2_summary.df <- tidy_summary(ml.ls)
@@ -361,7 +383,11 @@ alt_var_m2.df  %>% group_by(repl_id) %>% gt()
 alt_var_m2_summary.df %>% group_by(repl_id) %>% gt()
 
 rm(
-  ml.ls
+  ml.ls,
+  results_m2_interaction.lmr,
+  results_m2_m1model.lmr,
+  results_m2_housing.lmr,
+  results_m2_rental.lmr
 )
 ```
 
