@@ -73,6 +73,16 @@ We obtained the published replication data set [@Cavaille2023] from the Harvard 
 
 ***... be precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.***
 
+The authors suggest, in their first analysis of nation-wide election data, that voters in municipalities with high proportions of residents living in public housing as well as comparatively high proportions of third-country nationals voted more for far-right parties as a result of the demand shock on public housing. We undertake a conceptual replication of this result using their data on the city of Vienna. In particular, we look at census tracts---as a proxy for neighborhood---to see if tracts with a higher proportion of third-country nationals and higher proportions of individuals living in public housing tend to vote for far-right parties at higher rates. We find that implementing this conceptual replication increases the magnitude of the main point estimate for the interaction between these two factors, but the estimate is no longer statistically significant at the 5% level.
+
+The authors fit the models in both of their main analyses at the level of administrative units---i.e., all municipalities are equally weighted in their nation-wide analysis, and all tracts are equally weighted in their analysis of Vienna. However, it is unclear if this weighting is substantively appropriate. To test the robustness of their conclusions to this, we reweight their model so that each administrative unit has weight equal to the number of voters it contains. Implementing this robustness check in their primary analysis increases the magnitude of their main point estimate for the the interaction of the proportion of residents living in public housing with the proportion of third-country nationals residing in a municipality, which remains significant at the 5% level. Implementing this robustness check in their secondary analysis has no effect on the magnitude or the statistical significance of the main point estimates.
+
+Next, to better understand the authors main claims, how well their models fit the data, and to search for potential anomalies not evident in low-dimensional summaries, we attempted to visually replicate their primary and secondary analyses. Based on this graphical exploration, we carried out an outlier analysis.
+
+Finally, given the substantive importance placed on the interaction term in the authors' primary analysis, as well as the generally low goodness-of-fit of the models considered, we evaluated the main models of the primary and secondary analyses using out-of-sample tests of predictive accuracy. We find in both cases that the models with and without the interaction term have essentially the same mean squared error, suggesting that the substantive interpretation of the interaction effect may not be appropriate.
+
+We assessed the robustness of the findings from the Austrian sample by examining potential outliers in the key variables. We observed that the previously significant interaction effect between the share of non-EU residents and the share of public housing loses its significance when we exclude abnormally large values of key variables. Covariate valance analysis highlights substantial differences between observations with outliers and those without. When we reevaluate the main argument using the sample of outliers, we find that all the initial effects become notably stronger in both magnitude and significance. This may suggest that the author's primary argument may not generalize to all Austrian districts within the sample.
+
 ## Reproducibility
 
 ### Simple Direct Reproduction (Calibration)
@@ -835,7 +845,7 @@ suppressWarnings(print({p1+p2+p3}))
 rm(p1,p2,p3)
 ```
 
-R-squared drops substantially when dropping outliers.
+From these plots, we can observe that after removing outliers, the R-squared values decrease significantly. Respectively, it drops from 0.028 to 0.029 (a 32% decrease), from 0.013 to 0.010 (a 23% decrease), and from 0.008 to 0.003 for the key interaction (a 62.5% decrease).
 
 Now, we replicate the baseline model from Table 1 (regression of far-right vote change on public housing, non-EU and residents and their interaction).
 
@@ -927,6 +937,53 @@ tbl_merge_ex1 <-
   )
 
 tbl_merge_ex1
+```
+
+Here we look at the covariate balance between outliers and non-outlier observations.
+
+```{r outliers_cov}
+library("cobalt")
+library("MatchIt")
+
+austria_authors.df_upd1 <- subset(austria_authors.df_upd, outlier98_up == TRUE | outlier98_up == FALSE)
+
+
+
+austria_authors.df_upd1 <- austria_authors.df_upd1 %>% filter(!is.na(educ_tertiary) & !is.na(avg_income) &
+                                !is.na(lab_pct_manufact_01) & !is.na(lab_pct_unemp) &
+                                !is.na(welfare_cap_06 ) & !is.na( health_cap_06) &
+                                !is.na(education_cap_06) & !is.na(foreignborn_delta))
+
+set.seed(7)
+m.out <- MatchIt::matchit(outlier98_up ~ educ_tertiary + registered_06+
+                            avg_income + 
+                            lab_pct_manufact_01 + 
+                            lab_pct_unemp + welfare_cap_06 +  
+                            health_cap_06 + education_cap_06 + 
+                            foreignborn_delta, data = austria_authors.df_upd1)
+
+bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
+
+love.plot(m.out, stats = c("mean.diffs"),
+          thresholds = c(m = .1, v = 2), abs = TRUE, 
+          binary = "std",
+          var.order = "unadjusted")
+```
+
+And we replicate the authors main specification on the sample of outliers:
+
+```{r}
+out1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_up == TRUE)) %>%
+  tbl_regression()%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))
+
+tbl_merge_ex2 <-
+  tbl_merge(
+    tbls = list(out1),
+    tab_spanner = c("")
+  )
+tbl_merge_ex2 
 ```
 
 ### Model fit
