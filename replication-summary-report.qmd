@@ -69,6 +69,19 @@ We obtained the published replication data set [@Cavaille2023] from the Harvard 
 
 ***... be** precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.*
 
+The authors suggest, in their first analysis of nation-wide election data, that
+voters in municipalities with high proportions of residents living in public housing as
+well as comparatively high proportions of third-country nationals voted more for
+far-right parties as a result of the demand shock on public housing. We
+undertake a conceptual replication of this result using their data on the city
+of Vienna. In particular, we look at census tracts---as a proxy for
+neighborhood---to see if tracts with a higher proportion of third-country
+nationals and higher proportions of individuals living in public housing tend to
+vote for far-right parties at higher rates. We find that implementing this
+conceptual replication increases the magnitudes of the main point estimate for
+the interaction between these two factors, but the estimate is no longer
+statistically significant at the 5\% level.
+
 ## Reproducibility
 
 ### Simple Direct Reproduction (Calibration)
