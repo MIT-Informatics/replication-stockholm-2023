@@ -2,6 +2,7 @@
 title: "altman-demetrio-tarasenko Stockholm 2023 replication"
 format: html
 editor: visual
+bibliography: references.bib
 ---
 
 # **A comment on Cavaillé and Ferwerda (2022)**
@@ -45,6 +46,15 @@ tidy_summary<-function(resls){
     list_rbind(names_to="repl_id")
 }
 
+# workaround absence of tidier for some of the packages used
+glance.summary.lm_robust <- function(x,...) {
+ x[c("r.squared","adj.r.squared","df.residual","res_var","nobs")] %>% as_tibble()
+}
+
+glance.summary.glm <- function(x,...) {
+ x[c("aic","df.residual")] %>% as_tibble()
+}
+
 theme_set(theme_bw())
 ```
 
@@ -58,7 +68,7 @@ theme_set(theme_bw())
 
 ## Reproducibility
 
-*Describe in details if you have found coding error(s) and how they affect the main conclusions. In the event that the sign, magnitude or statistical significance is changed for the main estimates or robustness checks, report the new point estimates (e.g., in a table) in this section.g:*
+Simple Direct Reproduction (Calibration)
 
 ### Reproduction of Table 1 - Model 1 (Primary Result)
 
@@ -67,10 +77,6 @@ theme_set(theme_bw())
 
 requireNamespace("haven")
 requireNamespace("estimatr")
-# workaround absence of tidier for estimatr models summary
-glance.summary.lm_robust <- function(x,...) {
- x[c("r.squared","adj.r.squared","df.residual","res_var","nobs")] %>% as_tibble()
-}
 
 # main replication data from authors
 austria_authors.df <-
@@ -153,75 +159,96 @@ repro_m2.df %>% group_by(repl_id) %>% gt()
 repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 ```
 
-### Summary - Computational Reproducibility
+### Summary - Direct Reproducibility
 
 -   Main result - reproducible with original data & code
 
--   Secondary result
+-   Secondary result - reproducible with original data & code
 
 -   Comments: specific p-values, measures of fit, cluster variable missingness
 
--   Cluster variable missingness
-
-## Replication:
-
-*Clearly state/describe which type of replication you are conducting. See definitions at the beginning of this document. For robustness replicability, present your robustness checks and how they impact the main point estimates one by one so that it is clear how each modification to the specification/analysis impacts the main conclusions. Then you may combine them. Also, clearly state why you conduct each specific robustness check and/or modify the setting/model.*
+    -   Appendix does provide some additional detail on number of observations -- though not for models in table & 2 -- provides no additional measures of fit, or precision on p-values
 
 ### Alternate Estimation Procedures (computational robustness)
 
+Generally, even with a fixed statistical model family and specification results may vary with the estimation algorithm used and specific software's implementation of it. [@altman2004] We evaluate the computational robustness of the model by using alternative algorithms and implementations.
+
 #### Primary Result
 
--   use glm, lm fitters to check implementation robustness
-
--   could also use nls, bayesglm, mle2 \-- would require re-expressing current formula in different syntax
-
 ```{r alternate-estimations-m1}
-
-glance.summary.glm <- function(x,...) {
- x[c("aic","df.residual")] %>% as_tibble()
-}
+requireNamespace("arm")
 
 results_m1_statlm.lm <-
   stats::lm(m1.formula, data = austria_authors.df)
-
 results_m1_statglm.glm <-
   stats::glm(m1.formula, data = austria_authors.df)
+results_m1_statbayeslm.glm <-
+  arm::bayesglm(m1.formula, data = austria_authors.df, 
+                prior.scale=Inf, prior.df=Inf)
 
+#Note: could also add nls, bayesglm, mle2 -- would require re-expressing current formula in different syntax, and renaming results matrix
 
-alt_est_m1.df <- tidy_results(list(lmrobust = results_m1_computational.lmr,
-                                  lm=results_m1_statlm.lm,
-                                  glm=results_m1_statglm.glm))
+ml.ls <- list(lmrobust = results_m1_computational.lmr,
+              lm=results_m1_statlm.lm,
+              glm=results_m1_statglm.glm,
+              bayes=results_m1_statbayeslm.glm)
 
-alt_est_m1_summary.df <- tidy_summary(list(lmrobust = results_m1_computational.lmr,
-                                  lm=results_m1_statlm.lm,
-                                  glm=results_m1_statglm.glm))
+alt_est_m1.df <- tidy_results(ml.ls)
+alt_est_m1_summary.df <- tidy_summary(ml.ls)
 
 alt_est_m1.df  %>% group_by(repl_id) %>% gt()
 alt_est_m1_summary.df %>% group_by(repl_id) %>% gt()
 
+rm(ml.ls,results_m1_statlm.lm,results_m1_statglm.glm,results_m1_statbayeslm.glm)
 ```
 
 #### Secondary Result
 
 ```{r alternate-estimations-m2}
 
+requireNamespace("arm")
 
+results_m2_statlm.lm <-
+  stats::lm(m2.formula, data = vienna_authors.df)
+results_m2_statglm.glm <-
+  stats::glm(m2.formula, data = vienna_authors.df)
+results_m2_statbayeslm.glm <-
+  arm::bayesglm(m2.formula, data = vienna_authors.df, 
+                prior.scale=Inf, prior.df=Inf)
+
+#Note: could also add nls, bayesglm, mle2 -- would require re-expressing current formula in different syntax, and renaming results matrix
+
+ml.ls <- list(lmrobust = results_m1_computational.lmr,
+              lm=results_m2_statlm.lm,
+              glm=results_m2_statglm.glm,
+              bayes=results_m2_statbayeslm.glm)
+
+alt_est_m2.df <- tidy_results(ml.ls)
+alt_est_m2_summary.df <- tidy_summary(ml.ls)
+
+alt_est_m2.df  %>% group_by(repl_id) %>% gt()
+alt_est_m2_summary.df %>% group_by(repl_id) %>% gt()
+rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 ```
+
+## Replication:
+
+*Clearly state/describe which type of replication you are conducting. See definitions at the beginning of this document. For robustness replicability, present your robustness checks and how they impact the main point estimates one by one so that it is clear how each modification to the specification/analysis impacts the main conclusions. Then you may combine them. Also, clearly state why you conduct each specific robustness check and/or modify the setting/model.*
 
 ### Alternate OLS Specification (covariate robustness)
 
--   alternate methods for computing robust standard errors? (e.g. sensemaker, lmtest, sandwich)
-
 ```{r alternate-variables-m1}
-
 results_m1_nomain.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"), data = austria_authors.df)
+
 
 results_m1_kitchensink.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"), data = austria_authors.df)
 
 results_m1_mainonly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 + pct_noneu_06 "), data = austria_authors.df)
+
+
 
 alt_var_m1.df <- tidy_results(list(nomain = results_m1_nomain.lmr,
                                    kitchen =results_m1_kitchensink.lmr,
@@ -233,7 +260,11 @@ alt_var_m1_summary.df <- tidy_summary(list(nomain = results_m1_nomain.lmr,
 
 alt_var_m1.df  %>% group_by(repl_id) %>% gt()
 alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
+
+
 ```
+
+-   alternate methods for computing robust standard errors? (e.g. sensemaker, lmtest, sandwich)
 
 ### Alternate data (data robustness)
 
