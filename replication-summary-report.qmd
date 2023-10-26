@@ -646,6 +646,7 @@ p3 <- austria_authors.df %>%
   )
 
 suppressWarnings(print(p1+p2+p3))
+rm(p1,p2,p3)
 ```
 
 R-squared drops substantially when dropping outliers.
@@ -675,3 +676,4 @@ R-squared drops substantially when dropping outliers.
 ## Conclusion
 
 *State the most important results of your work and what you have learned. You may also describe other empirical exercises that could be conducted by other replicators.*
+
