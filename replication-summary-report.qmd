@@ -272,17 +272,6 @@ results_m1_euonly.lmr <-
 results_m1_poponly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 "), data = austria_authors.df)
 
-alt_var_m1.df <- tidy_results(list(nomain = results_m1_nomain.lmr,
-                                   kitchen =results_m1_kitchensink.lmr,
-                                   mainonly =results_m1_mainonly.lmr))
-
-alt_var_m1_summary.df <- tidy_summary(list(nomain = results_m1_nomain.lmr,
-                                   kitchen =results_m1_kitchensink.lmr,
-                                   mainonly =results_m1_mainonly.lmr))
-
-alt_var_m1.df  %>% group_by(repl_id) %>% gt()
-alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
-
 
 ml.ls <- list( author_model1 = results_m1_computational.lmr,
               author_clusterederr =results_m1_clustered.lmr,
@@ -485,7 +474,6 @@ First of all, we can have a look at the outliers in the main variables from Tabl
 
 ```{r outliers_plots}
 library(patchwork)
-#library(purrr)
 
 ###### OUTLIERS PLOTS
 
@@ -676,4 +664,3 @@ R-squared drops substantially when dropping outliers.
 ## Conclusion
 
 *State the most important results of your work and what you have learned. You may also describe other empirical exercises that could be conducted by other replicators.*
-
