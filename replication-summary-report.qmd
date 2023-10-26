@@ -872,7 +872,7 @@ austria_authors.df_upd <- austria_authors.df %>%
          d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE)), 
       TRUE, FALSE)
     )
-  )
+
 
 
 ols1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =austria_authors.df) %>%
