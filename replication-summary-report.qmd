@@ -409,7 +409,6 @@ vienna_authors.df %>%
 rm(cuts)
 ```
 
-
 -   outlier analysis
 
 -   residual analysis
