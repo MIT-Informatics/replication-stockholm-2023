@@ -27,7 +27,7 @@ Second, we test the robustness of the conclusions to (1)... (2)...
 
 We find that ...
 
-We assessed the robustness of the findings from the Austrian sample by examining potential outliers in the key variables. We observed that the previously significant interaction effect between the share of non-EU residents and the share of public housing loses its significance when we exclude abnormally large values of key variables. Covariate valance analysis highlights substantial differences between observations with outliers and those without. When we reevaluate the main argument using the sample of outliers, we find that all the initial effects become notably stronger in both magnitude and significance. This may suggest that the author's primary argument may not generalize to all Austrian districts within the sample.
+
 
 ## Introduction
 
@@ -111,6 +111,8 @@ analyses using out-of-sample tests of predictive accuracy. We find in both cases
 that the models with and without the interaction term have essentially the same
 mean squared error, suggesting that the substantive interpretation of the
 interaction effect may not be appropriate.
+
+We assessed the robustness of the findings from the Austrian sample by examining potential outliers in the key variables. We observed that the previously significant interaction effect between the share of non-EU residents and the share of public housing loses its significance when we exclude abnormally large values of key variables. Covariate valance analysis highlights substantial differences between observations with outliers and those without. When we reevaluate the main argument using the sample of outliers, we find that all the initial effects become notably stronger in both magnitude and significance. This may suggest that the author's primary argument may not generalize to all Austrian districts within the sample.
 
 ## Reproducibility
 
