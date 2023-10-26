@@ -947,6 +947,50 @@ tbl_merge_ex1 <-
 
 tbl_merge_ex1
 ```
+Here we look at the covariate balance between outliers and non-outlier observations.
+
+```{r outliers_cov}
+library("cobalt")
+library("MatchIt")
+
+austria_authors.df_upd1 <- subset(austria_authors.df_upd, outlier98_up == TRUE | outlier98_up == FALSE)
+
+
+
+austria_authors.df_upd1 <- austria_authors.df_upd1 %>% filter(!is.na(educ_tertiary) & !is.na(avg_income) &
+                                !is.na(lab_pct_manufact_01) & !is.na(lab_pct_unemp) &
+                                !is.na(welfare_cap_06 ) & !is.na( health_cap_06) &
+                                !is.na(education_cap_06) & !is.na(foreignborn_delta))
+
+set.seed(7)
+m.out <- MatchIt::matchit(outlier98_up ~ educ_tertiary + registered_06+
+                            avg_income + 
+                            lab_pct_manufact_01 + 
+                            lab_pct_unemp + welfare_cap_06 +  
+                            health_cap_06 + education_cap_06 + 
+                            foreignborn_delta, data = austria_authors.df_upd1)
+
+bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
+
+love.plot(m.out, stats = c("mean.diffs"),
+          thresholds = c(m = .1, v = 2), abs = TRUE, 
+          binary = "std",
+          var.order = "unadjusted")
+```
+And we replicate the authors main specification on the sample of outliers:
+```{r}
+out1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_up == TRUE)) %>%
+  tbl_regression()%>%        
+  add_significance_stars(hide_p = F, hide_se = F)%>%
+  add_glance_table(include = c(nobs, r.squared))
+
+tbl_merge_ex2 <-
+  tbl_merge(
+    tbls = list(out1),
+    tab_spanner = c("")
+  )
+tbl_merge_ex2 
+```
 
 ### Summary - Alternate Data Replicability
 
