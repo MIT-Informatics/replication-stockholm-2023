@@ -555,7 +555,17 @@ suppressWarnings({
   plotly::ggplotly())
 ```
 
-Visual examination of the data indicates that (1) there is a *very* modest association between the percentage of third-country nationals and both the level of support and the *change* in the level of support for far-right parties in the 2006 elections; and (2) that this trend is more pronounced in 2006 than in 2002. One of this article's primary interests is, in addition, the interaction between these two factors---i.e., that support is driven by competition between Austrian and third-country nationals for housing, which is most accute when public housing rates and the proportion of the population that is third-country nationals are both high. To visualize this, we plot the relationship between the percentage of third-country nationals and support for far-right parties, stratifying by the percentage of the population that lives in public housing.
+Visual examination of the data indicates that (1) there is a *very* modest
+association between the percentage of third-country nationals and both the level
+of support and the *change* in the level of support for far-right parties in the
+2006 elections; and (2) that this trend is more pronounced in 2006 than in 2002.
+One of this article's primary interests is, in addition, the interaction between
+these two factors---i.e., that support is driven by competition between Austrian
+and third-country nationals for housing, which is most accute when public
+housing rates and the proportion of the population that is third-country
+nationals are both high. To visualize this, we plot the relationship between the
+percentage of third-country nationals and support for far-right parties,
+stratifying by the percentage of the population that lives in public housing.
 
 ```{r intraoccular-2}
 # Bin the percentage of the municipality in public housing and plot the
@@ -581,9 +591,17 @@ suppressWarnings({
   plotly::ggplotly())
 ```
 
-We see that while the trend line does appear to get steeper, it is estimated with a considerable amount of uncertainty; in particular, in all three cases, the trend is not visually apparent, and the slope of the fitted linear model has a high degree of uncertainty about sign.
+We see that while the trend line does appear to get steeper, it is estimated
+with a considerable amount of uncertainty; in particular, in all three cases,
+the trend is not visually apparent, and the slope of the fitted linear model has
+a high degree of uncertainty about sign.
 
-We additionally color the observations based on the baseline level of support for far-right parties to see if an interaction with public housing rates and proportion of third-country nationals is apparent. In particular, it seems plausible that these relationships might be strengthened in places where the baseline support for far-right parties (as measured by their support in 2002) is already high.
+We additionally color the observations based on the baseline level of support
+for far-right parties to see if an interaction with public housing rates and
+proportion of third-country nationals is apparent. In particular, it seems
+plausible that these relationships might be strengthened in places where the
+baseline support for far-right parties (as measured by their support in 2002) is
+already high.
 
 ```{r intraoccular-3}
 # Add coloring based on how far-right the municipality was in the previous
@@ -607,11 +625,16 @@ suppressWarnings({
   plotly::ggplotly())
 ```
 
-While some extreme outliers seem to be in places that were already far-right in 2002, no trend is immediately apparent.
+While some extreme outliers seem to be in places that were already far-right in
+2002, no trend is immediately apparent.
 
-Next, we consider the second analysis, which tries to more directly test whether direct competition for public housing between Austrian and third-country nationals explains increasing support for far-right parties in Vienna.
+Next, we consider the second analysis, which tries to more directly test whether
+direct competition for public housing between Austrian and third-country
+nationals explains increasing support for far-right parties in Vienna.
 
-We begin by visualizing the relationship between the proportion of third-country nationals living in a tract, the proportion of residents living in public housing in a tract, and change in far-right vote share.
+We begin by visualizing the relationship between the proportion of third-country
+nationals living in a tract, the proportion of residents living in public
+housing in a tract, and change in far-right vote share.
 
 ```{r inraoccular-4}
 ## VIENNA
@@ -643,7 +666,17 @@ suppressWarnings({
   plotly::ggplotly())
 ```
 
-We notice two important facts. First, the relationship between the percentage of individuals living in public housing and the change in far-right vote share is much more pronounced and positive in Vienna than in the national data. Second, the relationship between the percentage of third-country nationals and the far-right vote share is actually very pronounced and negative. To understand the interrelationship between these two factors, we stratify by the proportion of individuals living in public housing and plot the relationship between the percentage of third-country nationals and change in far-right vote share, and see that while the rate of support does seem to rise in the highest bin (i.e., those tracts where the largest number of people live in public housing), the trend within each bin remains fairly negative.
+We notice two important facts. First, the relationship between the percentage of
+individuals living in public housing and the change in far-right vote share is
+much more pronounced and positive in Vienna than in the national data. Second,
+the relationship between the percentage of third-country nationals and the
+far-right vote share is actually very pronounced and negative. To understand the
+interrelationship between these two factors, we stratify by the proportion of
+individuals living in public housing and plot the relationship between the
+percentage of third-country nationals and change in far-right vote share, and
+see that while the rate of support does seem to rise in the highest bin (i.e.,
+those tracts where the largest number of people live in public housing), the
+trend within each bin remains fairly negative.
 
 ```{r intraoccular-4}
 # Plot the relationship between % non-EU and change in vote share, stratified by
@@ -675,7 +708,13 @@ rm(cuts)
 
 #### Outlier analysis
 
-First of all, we can have a look at the outliers in the main variables from Table 1 (Austrian sample). The following code visualizes the relationships between the main variables of interest: the percentage of non-EU residents, the percentage of people living in public housing, and the change in far-right vote share. From each of these variables, we drop 1% of the largest and smallest values. And then the plots compare the change in linear dependence between the variables.
+First of all, we can have a look at the outliers in the main variables from
+Table 1 (Austrian sample). The following code visualizes the relationships
+between the main variables of interest: the percentage of non-EU residents, the
+percentage of people living in public housing, and the change in far-right vote
+share. From each of these variables, we drop 1% of the largest and smallest
+values. And then the plots compare the change in linear dependence between the
+variables.
 
 ```{r outliers_plots}
 library(patchwork)
@@ -910,6 +949,51 @@ tbl_merge_ex1
 ```
 
 ### Summary - Alternate Data Replicability
+
+## Model fit
+
+```{r}
+sqe1 <- double(nrow(austria_authors.df))
+for (i in seq(nrow(austria_authors.df))) {
+  row <- austria_authors.df[i, ]
+  m <- lm(d_rr_06 ~ dv_pop_01 * pct_noneu_06, data = austria_authors.df[-i, ])
+  sqe1[[i]] <- (row$d_rr_06 - predict(m, row))^2
+}
+print(glue::glue("LOO RMSE for interaction mode: { sqrt(mean(sqe1, na.rm = TRUE)) }"))
+
+sqe2 <- double(nrow(austria_authors.df))
+for (i in seq(nrow(austria_authors.df))) {
+  row <- austria_authors.df[i, ]
+  m <- lm(d_rr_06 ~ dv_pop_01 + pct_noneu_06, data = austria_authors.df[-i, ])
+  sqe2[[i]] <- (row$d_rr_06 - predict(m, row))^2
+}
+print(glue::glue("LOO RMSE for main effects: { sqrt(mean(sqe2, na.rm = TRUE)) }"))
+
+rm(sqe1)
+rm(sqe2)
+```
+
+```{r}
+sqe1 <- double(nrow(vienna_authors.df))
+for (i in seq(nrow(vienna_authors.df))) {
+  row <- vienna_authors.df[i, ]
+  m <- lm(dv ~ pctrental * pctpublic_w_zsp, data = vienna_authors.df[-i, ])
+  sqe1[[i]] <- (row$dv - predict(m, row))^2
+}
+print(glue::glue("LOO RMSE for interaction mode: { sqrt(mean(sqe1, na.rm = TRUE)) }"))
+
+sqe2 <- double(nrow(vienna_authors.df))
+for (i in seq(nrow(vienna_authors.df))) {
+  row <- vienna_authors.df[i, ]
+  m <- lm(dv ~ pctrental + pctpublic_w_zsp, data = vienna_authors.df[-i, ])
+  sqe2[[i]] <- (row$dv - predict(m, row))^2
+}
+print(glue::glue("LOO RMSE for main effects: { sqrt(mean(sqe2, na.rm = TRUE)) }"))
+
+rm(sqe1)
+rm(sqe2)
+```
+
 
 ## Conclusion
 
