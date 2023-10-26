@@ -168,11 +168,11 @@ repro_m2_summary.df %>% group_by(repl_id) %>% gt()
 
     -   Appendix does provide some additional detail on number of observations -- though not for models in table & 2 -- provides no additional measures of fit, or precision on p-values
 
-### Alternate Estimation Procedures (computational robustness)
+## Alternate Estimation Procedures (computational robustness)
 
 Generally, even with a fixed statistical model family and specification results may vary with the estimation algorithm used and specific software's implementation of it. [@altman2004] We evaluate the computational robustness of the model by using alternative algorithms and implementations.
 
-#### Primary Result
+### Primary Result
 
 ```{r alternate-estimations-m1}
 requireNamespace("arm")
@@ -201,7 +201,7 @@ alt_est_m1_summary.df %>% group_by(repl_id) %>% gt()
 rm(ml.ls,results_m1_statlm.lm,results_m1_statglm.glm,results_m1_statbayeslm.glm)
 ```
 
-#### Secondary Result
+### Secondary Result
 
 ```{r alternate-estimations-m2}
 
@@ -229,6 +229,16 @@ alt_est_m2.df  %>% group_by(repl_id) %>% gt()
 alt_est_m2_summary.df %>% group_by(repl_id) %>% gt()
 rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 ```
+
+### Summary - Computation Robustness of Reproducibility
+
+-   Main result - reproducible with original data & code
+
+-   Secondary result - reproducible with original data & code
+
+-   Comments: specific p-values, measures of fit, cluster variable missingness
+
+    -   Appendix does provide some additional detail on number of observations -- though not for models in table & 2 -- provides no additional measures of fit, or precision on p-values
 
 ## Replication:
 
