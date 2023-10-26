@@ -37,6 +37,7 @@ library(tidyverse)
 library(magrittr,include.only="%<>%")
 library(broom)
 library(gt)
+library(patchwork)
 
 tidy_results<-function(resls){
   purrr::map(resls, \(x) tidy(x)) %>%
@@ -67,6 +68,8 @@ theme_set(theme_bw())
 *\_ For replication, we adopt the definitions [here](https://i4replication.org/definitions.html). For robustness replicability, clearly state your robustness checks and how they affect the main point estimates. For direct and conceptual replications, clearly describe the new data. For conceptual replications, also describe the new procedures or they differ from the original study. Different procedures implies a different experimental design and/or analysis for experiments and different methods and/or analysis for observational data.\_*
 
 *For all three replication types, be precise and summarize your results as follows: "Implementing this robustness increases/decreases the size of the main point estimate for outcome Y by X and the estimate is not anymore statistically significant at the X% level" or "Implementing this robustness check has no effect on the magnitude or the statistical significance of the main point estimate." Also report the coefficient (or other effect size), the standard error of the coefficient/effect size, the test statistic including df if relevant, and the p-value for all tests.*
+
+-   many variables in the dataset are not documented
 
 ## Reproducibility
 
@@ -133,7 +136,6 @@ m2.formula<- formula("dv ~  (pctrental + pctpublic_w_zsp)")
 results_m2_computational.lmr <-
   estimatr::lm_robust(m2.formula,   data = vienna_authors.df, 
                       clusters = tract_key)
-
 tidy_m2_original.df <-
   structure(
     list(
@@ -220,7 +222,7 @@ results_m2_statbayeslm.glm <-
 
 #Note: could also add nls, bayesglm, mle2 -- would require re-expressing current formula in different syntax, and renaming results matrix
 
-ml.ls <- list(lmrobust = results_m1_computational.lmr,
+ml.ls <- list(lmrobust = results_m2_computational.lmr,
               lm=results_m2_statlm.lm,
               glm=results_m2_statglm.glm,
               bayes=results_m2_statbayeslm.glm)
@@ -249,18 +251,50 @@ rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 
 -   Clustered standard errors
 
+#### Alternate Covariates & Model 1
+
 ```{r alternate-variables-m1}
 
-#NOTE: could also explore  alternate methods for computing robust standard errors? (e.g. sensemaker, lmtest, sandwich)
+#NOTE: could also explore  alternate methods for computing robust standard errors (e.g. sensemaker, lmtest, sandwich)
 
-results_m1_clustered.lmr <-
-  estimatr::lm_robust(m1.formula, data = austria_authors.df, clusters = bezirk)
+results_m1_clustered.lmr <-  estimatr::lm_robust(m1.formula, data = austria_authors.df, clusters = bezirk)
 
 results_m1_interactionsonly.lmr <-
-  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"), data = austria_authors.df)
+  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 -dv_pop_01 -pct_noneu_06"),
+                      data = austria_authors.df)
 
 results_m1_kitchensink.lmr <-
-  estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"), data = austria_authors.df)
+  estimatr::lm_robust(
+    formula(
+      "d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"
+    ),
+    data = austria_authors.df
+  )
+
+results_m1_kitchensinkmain.lmr <-
+  estimatr::lm_robust(
+    formula(
+      "d_rr_06 ~ dv_pop_01+pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"
+    ),
+    data = austria_authors.df
+  )
+
+# vacancy has high missingbess
+results_m1_kitchensink_novacancy.lmr <-
+  estimatr::lm_robust(
+    formula(
+      "d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct "
+    ),
+    data = austria_authors.df
+  )
+
+results_m1_kitchensinkmain_novacancy.lmr <-
+  estimatr::lm_robust(
+    formula(
+      "d_rr_06 ~ dv_pop_01+pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct "
+    ),
+    data = austria_authors.df
+  )
 
 results_m1_mainonly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 + pct_noneu_06 "), data = austria_authors.df)
@@ -271,34 +305,68 @@ results_m1_euonly.lmr <-
 results_m1_poponly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 "), data = austria_authors.df)
 
-alt_var_m1.df <- tidy_results(list(nomain = results_m1_nomain.lmr,
-                                   kitchen =results_m1_kitchensink.lmr,
-                                   mainonly =results_m1_mainonly.lmr))
 
-alt_var_m1_summary.df <- tidy_summary(list(nomain = results_m1_nomain.lmr,
-                                   kitchen =results_m1_kitchensink.lmr,
-                                   mainonly =results_m1_mainonly.lmr))
-
-alt_var_m1.df  %>% group_by(repl_id) %>% gt()
-alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
-
-
-ml.ls <- list( author_model1 = results_m1_computational.lmr,
-              author_clusterederr =results_m1_clustered.lmr,
-              loaded_model =results_m1_kitchensink.lmr,
-              interaction =results_m1_interactionsonly.lmr,
-              maineffects =results_m1_mainonly.lmr,
-              single_eu =results_m1_euonly.lmr,
-              single_pop =results_m1_poponly.lmr)
+ml.ls <- list(
+  author_model1 = results_m1_computational.lmr,
+  author_clusterederr = results_m1_clustered.lmr,
+  loaded_model = results_m1_kitchensink.lmr,
+  loaded_main = results_m1_kitchensinkmain.lmr,
+  loaded_nv = results_m1_kitchensink_novacancy.lmr,
+  loaded_main_nv = results_m1_kitchensinkmain_novacancy.lmr,
+  interaction = results_m1_interactionsonly.lmr,
+  maineffects = results_m1_mainonly.lmr,
+  single_eu = results_m1_euonly.lmr,
+  single_pop = results_m1_poponly.lmr
+)
 
 alt_var_m1.df <- tidy_results(ml.ls)
 alt_var_m1_summary.df <- tidy_summary(ml.ls)
 
 alt_var_m1.df  %>% group_by(repl_id) %>% gt()
 alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
-rm(ml.ls, results_m1_clustered.lmr,
-   results_m1_kitchensink.lmr, results_m1_interactionsonly.lmr,
-   results_m1_mainonly.lmr, results_m1_euonly.lmr, results_m1_poponly.lmr)
+
+rm(
+  ml.ls,
+  results_m1_clustered.lmr,
+  results_m1_kitchensink.lmr,
+  results_m1_interactionsonly.lmr,
+  results_m1_kitchensink_novacancy.lmr,
+  results_m1_kitchensinkmain_novacancy.lmr,
+  results_m1_mainonly.lmr,
+  results_m1_euonly.lmr,
+  results_m1_poponly.lmr,
+  results_m1_kitchensinkmain.lmr
+)
+```
+
+#### Alternate Covariates & Model 2
+
+```{r alternate-variables-m2}
+
+#m2.formula<- formula("dv ~  (pctrental + pctpublic_w_zsp)")
+#results_m2_computational.lmr <-
+#  estimatr::lm_robust(m2.formula,   data = vienna_authors.df, 
+#                      clusters = tract_key)
+
+ estimatr::lm_robust(dv ~pcrental+public_w_zsp,   data = vienna_authors.df, 
+                    clusters = tract_key)
+
+ml.ls <- list(
+  author_model2 = results_m2_computational.lmr
+)
+
+
+
+est
+alt_var_m2.df <- tidy_results(ml.ls)
+alt_var_m2_summary.df <- tidy_summary(ml.ls)
+
+alt_var_m2.df  %>% group_by(repl_id) %>% gt()
+alt_var_m2_summary.df %>% group_by(repl_id) %>% gt()
+
+rm(
+  ml.ls
+)
 ```
 
 #### Proportion of third-country nationals
@@ -316,9 +384,18 @@ nationals would tend to be more supportive of far-right parties.
 results_m2_pctforeign <-
   estimatr::lm_robust(dv ~ pctforeign * pctpublic_w_zsp, data = vienna_authors.df,
                       clusters = tract_key)
+tidy_results(list("pctforeign" = results_m2_pctforeign)) %>%
+  gt()
+tidy_summary(list("pctforeign" = results_m2_pctforeign)) %>%
+  gt()
+
 results_m2_pctforeign_w_controls <-
   estimatr::lm_robust(dv ~ pctforeign * pctpublic_w_zsp + lab_pct_pensioners + educ_tertiary,
                       data = vienna_authors.df, clusters = tract_key)
+tidy_results(list("pctforeign_controls" = results_m2_pctforeign_w_controls)) %>%
+  gt()
+tidy_summary(list("pctforeign_controls" = results_m2_pctforeign_w_controls)) %>%
+  gt()
 ```
 
 It's possible that these results are driven by homophily, i.e., voters residing
@@ -334,9 +411,19 @@ placebo_df <- vienna_authors.df %>%
 results_m2_pctforeign_placebo <-
   estimatr::lm_robust(farright_share2002 ~ pctforeign02 * pctpublic_w_zsp, data = placebo_df,
                       clusters = tract_key)
+tidy_results(list("pctforeign_placebo" = results_m2_pctforeign_placebo)) %>%
+  gt()
+tidy_summary(list("pctforeign_placebo" = results_m2_pctforeign_placebo)) %>%
+  gt()
+
 results_m2_pctforeign_w_controls_placebo <-
   estimatr::lm_robust(farright_share2002 ~ pctforeign02 * pctpublic_w_zsp + lab_pct_pensioners + educ_tertiary,
                       data = placebo_df, clusters = tract_key)
+tidy_results(list("pctforeign_controls_placebo" = results_m2_pctforeign_w_controls_placebo)) %>%
+  gt()
+tidy_summary(list("pctforeign_controls_placebo" = results_m2_pctforeign_w_controls_placebo)) %>%
+  gt()
+
 rm(placebo_df)
 ```
 
@@ -351,9 +438,16 @@ public housing resources pushes voters to support far-right parties---is weak.
 
 #### Reweighting
 
+```{r}
+
+```
+
+
+#### Summary: Covariate Robustness
+
 ### Alternate data (data robustness)
 
-#### intraoccular impact
+#### Graphical Exploration (intraoccular impact)
 
 To better understand the authors main claims, we attempt to visualize the trends
 they find in the raw data. We begin with the first analysis, which links support
@@ -559,88 +653,171 @@ rm(cuts)
 First of all, we can have a look at the outliers in the main variables from Table 1 (Austrian sample). The following code visualizes the relationships between the main variables of interest: the percentage of non-EU residents, the percentage of people living in public housing, and the change in far-right vote share. From each of these variables, we drop 1% of the largest and smallest values. And then the plots compare the change in linear dependence between the variables.
 
 ```{r outliers_plots}
-library(purrr)
-
-
+library(patchwork)
 
 ###### OUTLIERS PLOTS
 
 p1 <- austria_authors.df %>%
-  mutate(
-    outlier = ifelse(
-      (dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = T) | d_rr_06 > quantile(d_rr_06, 0.99, na.rm = T)|
-        dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = T) | d_rr_06 < quantile(d_rr_06, 0.01, na.rm = T)),
-      T, F
-    )
-  ) %>%
+  mutate(outlier = ifelse(
+    (
+      dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = T) |
+        d_rr_06 > quantile(d_rr_06, 0.99, na.rm = T) |
+        dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = T) |
+        d_rr_06 < quantile(d_rr_06, 0.01, na.rm = T)
+    ),
+    T,
+    F
+  )) %>%
   ggplot(aes(x = dv_pop_01, y = d_rr_06)) +
   geom_point(aes(color = outlier), size = 1) +
-  scale_color_manual(values = c('navy', 'red'))+
-  ggtitle('') + 
-  ylab('Δ  2002–6') + xlab('% public housing')+
-  geom_smooth(method = "lm", se = T, color = "red") + 
-  geom_smooth(data = . %>% filter(outlier == F), method = "lm", se = T, color = "blue")  +
-  geom_text(data = . %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ dv_pop_01))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.4, y = 0.2), color = "red", hjust = 0)+
-  geom_text(data = . %>% filter(outlier == 0) %>%
-            summarise(r2 = summary(lm(d_rr_06 ~ dv_pop_01))$r.squared),
-          aes(label = paste("R^2 =", round(r2, 3)), x = 0.4, y = 0.18), color = "blue", hjust = 0)
+  scale_color_manual(values = c('navy', 'red')) +
+  ggtitle('') +
+  ylab('Δ  2002–6') + xlab('% public housing') +
+  geom_smooth(method = "lm",
+              se = T,
+              color = "red") +
+  geom_smooth(
+    data = . %>% filter(outlier == F),
+    method = "lm",
+    se = T,
+    color = "blue"
+  )  +
+  geom_text(
+    data = . %>%
+      summarise(r2 = summary(lm(d_rr_06 ~ dv_pop_01))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.4,
+      y = 0.2
+    ),
+    color = "red",
+    hjust = 0
+  ) +
+  geom_text(
+    data = . %>% filter(outlier == 0) %>%
+      summarise(r2 = summary(lm(d_rr_06 ~ dv_pop_01))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.4,
+      y = 0.18
+    ),
+    color = "blue",
+    hjust = 0
+  )
 
 
 p2 <- austria_authors.df %>%
-  mutate(
-    outlier = ifelse(
-      (pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = T) | d_rr_06 > quantile(d_rr_06, 0.99, na.rm = T)|
-         pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = T) | d_rr_06 < quantile(d_rr_06, 0.01, na.rm = T)),
-      T, F
-    )
-  ) %>%
+  mutate(outlier = ifelse(
+    (
+      pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = T) |
+        d_rr_06 > quantile(d_rr_06, 0.99, na.rm = T) |
+        pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = T) |
+        d_rr_06 < quantile(d_rr_06, 0.01, na.rm = T)
+    ),
+    T,
+    F
+  )) %>%
   ggplot(aes(x = pct_noneu_06, y = d_rr_06)) +
   geom_point(aes(color = outlier), size = 1) +
-  scale_color_manual(values = c('navy', 'red'))+
-  ggtitle('') + 
-  ylab('Δ  2002–6') + xlab('% non-EU')+  
-  geom_smooth(method = "lm", se = T, color = "red") + 
-  geom_smooth(data = . %>% filter(outlier == F), method = "lm", se = T, color = "blue")  +
-  geom_text(data = . %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ pct_noneu_06))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.15, y = 0.2), color = "red", hjust = 0)+
-  geom_text(data = . %>% filter(outlier == 0) %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ pct_noneu_06))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.15, y = 0.18), color = "blue", hjust = 0)
+  scale_color_manual(values = c('navy', 'red')) +
+  ggtitle('') +
+  ylab('Δ  2002–6') + xlab('% non-EU') +
+  geom_smooth(method = "lm",
+              se = T,
+              color = "red") +
+  geom_smooth(
+    data = . %>% filter(outlier == F),
+    method = "lm",
+    se = T,
+    color = "blue"
+  )  +
+  geom_text(
+    data = . %>%
+      summarise(r2 = summary(lm(
+        d_rr_06 ~ pct_noneu_06
+      ))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.15,
+      y = 0.2
+    ),
+    color = "red",
+    hjust = 0
+  ) +
+  geom_text(
+    data = . %>% filter(outlier == 0) %>%
+      summarise(r2 = summary(lm(
+        d_rr_06 ~ pct_noneu_06
+      ))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.15,
+      y = 0.18
+    ),
+    color = "blue",
+    hjust = 0
+  )
 
 p3 <- austria_authors.df %>%
-  mutate(
-    outlier = ifelse(
-      (dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = TRUE) | 
-         d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
-         dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = TRUE) | 
-         d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE) |
-         pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = TRUE) | 
-         d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
-         pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = TRUE) | 
-         d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE)),
-      TRUE, FALSE
-    )) %>%
-  ggplot(aes(x = I(pct_noneu_06*pct_noneu_06), y = d_rr_06)) +
+  mutate(outlier = ifelse(
+    (
+      dv_pop_01 > quantile(dv_pop_01, 0.99, na.rm = TRUE) |
+        d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
+        dv_pop_01 < quantile(dv_pop_01, 0.01, na.rm = TRUE) |
+        d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE) |
+        pct_noneu_06 > quantile(pct_noneu_06, 0.99, na.rm = TRUE) |
+        d_rr_06 > quantile(d_rr_06, 0.99, na.rm = TRUE) |
+        pct_noneu_06 < quantile(pct_noneu_06, 0.01, na.rm = TRUE) |
+        d_rr_06 < quantile(d_rr_06, 0.01, na.rm = TRUE)
+    ),
+    TRUE,
+    FALSE
+  )) %>%
+  ggplot(aes(x = I(pct_noneu_06 * pct_noneu_06), y = d_rr_06)) +
   geom_point(aes(color = outlier), size = 1) +
-  scale_color_manual(values = c('navy', 'red'))+
+  scale_color_manual(values = c('navy', 'red')) +
   ggtitle('') +  # Add your plot title
-  geom_smooth(method = "lm", se = T, color = "red") + # Add smoothed line for the whole sample
-  geom_smooth(data = . %>% filter(outlier == F), method = "lm", se = T, color = "blue")  +
-  geom_text(data = . %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ I(pct_noneu_06*pct_noneu_06)))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.04, y = 0.2), color = "red", hjust = 0)+
-  geom_text(data = . %>% filter(outlier == 0) %>%
-              summarise(r2 = summary(lm(d_rr_06 ~ I(pct_noneu_06*pct_noneu_06)))$r.squared),
-            aes(label = paste("R^2 =", round(r2, 3)), x = 0.04, y = 0.18), color = "blue", hjust = 0)
+  geom_smooth(method = "lm",
+              se = T,
+              color = "red") + # Add smoothed line for the whole sample
+  geom_smooth(
+    data = . %>% filter(outlier == F),
+    method = "lm",
+    se = T,
+    color = "blue"
+  )  +
+  geom_text(
+    data = . %>%
+      summarise(r2 = summary(lm(
+        d_rr_06 ~ I(pct_noneu_06 * pct_noneu_06)
+      ))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.04,
+      y = 0.2
+    ),
+    color = "red",
+    hjust = 0
+  ) +
+  geom_text(
+    data = . %>% filter(outlier == 0) %>%
+      summarise(r2 = summary(lm(
+        d_rr_06 ~ I(pct_noneu_06 * pct_noneu_06)
+      ))$r.squared),
+    aes(
+      label = paste("R^2 =", round(r2, 3)),
+      x = 0.04,
+      y = 0.18
+    ),
+    color = "blue",
+    hjust = 0
+  )
 
-library(gridExtra)
-ggarrange(p1, p2, p3, nrow = 1)
+suppressWarnings(print(p1+p2+p3))
+rm(p1,p2,p3)
 ```
-R-squared drops substantially when dropping outliers.
 
+R-squared drops substantially when dropping outliers.
 
 -   residual analysis
 
