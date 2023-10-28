@@ -21,11 +21,11 @@ Micah Altman[^1][^2] (MIT) [escience\@mit.edu](mailto:escience@mit.edu){.email},
 
 Cavaillé and Ferwerda [@cavaillé2023] examine the effect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. In their preferred specification, they find that -- the interaction of the proportion of non-eu residents in a municipality with the proportion of population in that municipality has an effect on the change in vote share for far right parties of +0.67 (p \< .05) supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties. Moderating this, based on a subset of data from Vienna, they find that -- percentage of population in rental housing and the percentage of population in public housing are both substantive and significant predictors of change in far-right party vote share with magnitude of .03 and .09 (respectively) and p-values of \< .05. Based on this estmate they conclude that support was increased by the the high proportion of public housing beneficiaries or low-end rentals within districts.
 
-We first reproduce the paper's main and secondary analyses, and subject these to computational robustness tests.
+As part of a collaborative iniative, we conducted a time bounded replication study, following a standardized template. We first reproduce the paper's main and secondary analyses, and subject these to computational robustness tests.
 
 We then conduct several types of conceptual replication -- examining the robustness of results to selection of covariates, reweighting, and the sensitivity of results to resampling and outliers.
 
-We find research is computationally replicable but the evidence for the main causal claims are overstated as it sensitive to a small set of observations, does not explain most of the variation in outcomes, and does not out-compete simpler causal explanations.
+We find that the research is computationally replicable but the evidence for the main causal claims are potentially overstated as it sensitive to a small set of observations, does not explain most of the variation in outcomes, and does not out-compete simpler causal explanations.
 
 ## Introduction
 
@@ -38,6 +38,7 @@ library(magrittr,include.only="%<>%")
 library(broom)
 library(gt)
 library(patchwork)
+requireNamespace("DT")
 
 tidy_results<-function(resls){
   purrr::map(resls, \(x) tidy(x)) %>%
@@ -58,6 +59,16 @@ glance.summary.glm <- function(x,...) {
  x[c("aic","df.residual")] %>% as_tibble()
 }
 
+# consistent table formatting
+fmtTB <- function(data,caption) {
+    DT::datatable (
+    data=data,
+    caption=caption,
+    extensions = 'Buttons',
+    options = list(dom = 'Bfrltip',
+                   buttons = c('csv'))
+   )
+}
 theme_set(theme_bw())
 ```
 
@@ -67,21 +78,23 @@ Cavaillé and Ferwerda [@cavaillé2023] tested the effect of granting immigrants
 
 In their preferred specification, using OLS with clustered standard errors, they find that -- the interaction of the proportion of non-eu residents in a municipality with the proportion of population in that municipality has an effect on the change in vote share for far right parties of +0.67 (p \< .05) (pg 26, Table 1, col 1) supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties (pg. 19). Moderating this, based on a subset of data from Vienna, they find that -- percentage of population in rental housing and the percentage of population in public housing are both substantive and significant predictors of change in far-right party vote share with magnitude of .03 and .09 (respectively) and p-values of \< .05. (pg 30, Table 2, col 1). Based on this estimate they conclude that support was accelerated by the the high proportion of public housing beneficiaries or low-end rentals within districts. (pg 19.)
 
+We created this replication report as part of an intensive single-day replication effort as part of the 'Replication Games' a collaborative research initiative of the Institute for Replication. We pre-selected the study from a short list of candidates provided by the organizers, and applied the provided template and nomenclature.
+
 We obtained the published replication data set [@Cavaille2023] from the Harvard Dataverse archive, where it had been deposited for public use by the authors. The replication data set included the final processed data used to produce the paper results, along with R code to replicate figures and tables. The data was sufficient to check computational repoducibility but posed challenges for conceptual reproducibility because it provided neither copies of the source data, nor links to or citations of the original data sources (which were described generally). Further although the replication data did include additional measures not used in publication, these were largely undocumented, and hence difficult to reliably interpret.
 
 We first reproduced the paper's main and secondary analyses, and subject these to computational robustness tests. The computational reproductions showed both the main and secondary results to be reproducible. As an unintended consequence reproducing the results revealed the substantively poor fit of these models: the primary model has an R-squared of .0356. This finding informed further replication analysis.
 
 We then conducted several types of conceptual replication -- examining the robustness of results to selection of covariates, reweighting, and the sensitivity of results to resampling and outliers.
 
-Prompted by the unexectedly poor fit of the primary model, we performed a conceptual replication that applied the authors linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation. This reveals that the interaction term does not provide substantial improvement in explanatory power over a more naive baseline.
+Prompted by the unexectedly poor fit of the primary model, we performed a conceptual replication that applied the authors' linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation. This reveals that the interaction term does not provide substantial improvement in explanatory power over a more naive baseline.
 
 The authors suggest, in their first analysis of nation-wide election data, that voters in municipalities with high proportions of residents living in public housing as well as comparatively high proportions of third-country nationals voted more for far-right parties as a result of the demand shock on public housing. We undertake a conceptual replication of this result using their data on the city of Vienna. In particular, we look at census tracts---as a proxy for neighborhood---to see if tracts with a higher proportion of third-country nationals and higher proportions of individuals living in public housing tend to vote for far-right parties at higher rates. We find that implementing this conceptual replication increases the magnitude of the main point estimate for the interaction between these two factors, but the estimate is no longer statistically significant at the 5% level.
 
 The authors fit the models in both of their main analyses at the level of administrative units---i.e., all municipalities are equally weighted in their nation-wide analysis, and all tracts are equally weighted in their analysis of Vienna. However, it is unclear if this weighting is substantively appropriate. To test the robustness of their conclusions to this, we reweight their model so that each administrative unit has weight equal to the number of voters it contains. Implementing this robustness check in their primary analysis increases the magnitude of their main point estimate for the the interaction of the proportion of residents living in public housing with the proportion of third-country nationals residing in a municipality, which remains significant at the 5% level. Implementing this robustness check in their secondary analysis has no effect on the magnitude or the statistical significance of the main point estimates.
 
-Next, to better understand the authors main claims, how well their models fit the data, and to search for potential anomalies not evident in low-dimensional summaries, we attempted to visually replicate their primary and secondary analyses. Based on this graphical exploration, we carried out an outlier analysis.
+Next, to better understand the authors' main claims, how well their models fit the data, and to search for potential anomalies not evident in low-dimensional summaries, we attempted to visually replicate their primary and secondary analyses. Based on this graphical exploration, we carried out an outlier analysis.
 
-We assessed the robustness of the findings from the Austrian sample by examining potential outliers in the key variables. We observed that the previously significant interaction effect between the share of non-EU residents and the share of public housing loses its significance when we exclude abnormally large values of key variables. Covariate valance analysis highlights substantial differences between observations with outliers and those without. When we reevaluate the main argument using the sample of outliers, we find that all the initial effects become notably stronger in both magnitude and significance. This may suggest that the author's primary argument may not generalize to all Austrian districts within the sample.
+We assessed the robustness of the findings from the Austrian sample by examining potential outliers in the key variables. We observed that the previously significant interaction effect between the share of non-EU residents and the share of public housing loses its significance when we exclude abnormally large values of key variables. Covariate valance analysis highlights substantial differences between observations with outliers and those without. When we reevaluate the main argument using the sample of outliers, we find that all the initial effects become notably stronger in both magnitude and significance. This may suggest that the authors' primary argument may not generalize to all Austrian districts within the sample.
 
 Finally, given the substantive importance placed on the interaction term in the authors' primary analysis, as well as the generally low goodness-of-fit of the models considered, we evaluated the main models of the primary and secondary analyses using out-of-sample tests of predictive accuracy. We find in both cases that the models with and without the interaction term have essentially the same mean squared error, suggesting that the substantive interpretation of the interaction effect may not be appropriate.
 
@@ -136,9 +149,12 @@ repro_m1.df <- tidy_results(list(comp=results_m1_computational.lmr)) %>%
 
 repro_m1_summary.df <- tidy_summary(list(comp=results_m1_computational.lmr))
 
-repro_m1.df %>% group_by(repl_id) %>% gt()
+repro_m1.df %>% group_by(repl_id) %>% 
+  fmtTB(caption="coefficients")
 
-repro_m1_summary.df %>% group_by(repl_id) %>% gt()
+repro_m1_summary.df %>% group_by(repl_id) %>% 
+    fmtTB(caption="summaries")
+
 ```
 
 #### Reproduction of Table 2 - Model 1 (Secondary Result)
@@ -174,9 +190,11 @@ repro_m2.df <- tidy_results(list(comp=results_m2_computational.lmr)) %>%
 
 repro_m2_summary.df <- tidy_summary(list(comp=results_m2_computational.lmr))
 
-repro_m2.df %>% group_by(repl_id) %>% gt()
+repro_m2.df %>% group_by(repl_id) %>% 
+      fmtTB(caption="coefficients")
 
-repro_m2_summary.df %>% group_by(repl_id) %>% gt()
+repro_m2_summary.df %>% group_by(repl_id) %>%
+      fmtTB(caption="summaries")
 ```
 
 #### Summary - Direct Reproducibility
@@ -212,8 +230,10 @@ ml.ls <- list(lmrobust = results_m1_computational.lmr,
 alt_est_m1.df <- tidy_results(ml.ls)
 alt_est_m1_summary.df <- tidy_summary(ml.ls)
 
-alt_est_m1.df  %>% group_by(repl_id) %>% gt()
-alt_est_m1_summary.df %>% group_by(repl_id) %>% gt()
+alt_est_m1.df  %>% group_by(repl_id) %>% 
+        fmtTB(caption="coefficients")
+alt_est_m1_summary.df %>% group_by(repl_id) %>% 
+        fmtTB(caption="summaries")
 
 rm(ml.ls,results_m1_statlm.lm,results_m1_statglm.glm,results_m1_statbayeslm.glm)
 ```
@@ -242,8 +262,12 @@ ml.ls <- list(lmrobust = results_m2_computational.lmr,
 alt_est_m2.df <- tidy_results(ml.ls)
 alt_est_m2_summary.df <- tidy_summary(ml.ls)
 
-alt_est_m2.df  %>% group_by(repl_id) %>% gt()
-alt_est_m2_summary.df %>% group_by(repl_id) %>% gt()
+alt_est_m2.df  %>% group_by(repl_id) %>% 
+        fmtTB(caption="coefficients")
+
+alt_est_m2_summary.df %>% group_by(repl_id) %>%
+        fmtTB(caption="summaries")
+
 rm(ml.ls,results_m2_statlm.lm,results_m2_statglm.glm,results_m2_statbayeslm.glm)
 ```
 
@@ -255,7 +279,7 @@ The computational reproductions showed both the main and secondary results to be
 
 ### Conceptual Replication: Alternate OLS Specification (covariate robustness)
 
-Prompted by the unexectedly poor fit of the primary model, we performed a conceptual replication that applied the authors linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation.
+Prompted by the unexectedly poor fit of the primary model, we performed a conceptual replication that applied the authors' linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation.
 
 #### Alternate Covariates & Model 1
 
@@ -327,8 +351,11 @@ ml.ls <- list(
 alt_var_m1.df <- tidy_results(ml.ls)
 alt_var_m1_summary.df <- tidy_summary(ml.ls)
 
-alt_var_m1.df  %>% group_by(repl_id) %>% gt()
-alt_var_m1_summary.df %>% group_by(repl_id) %>% gt()
+alt_var_m1.df  %>% group_by(repl_id) %>% 
+        fmtTB(caption="coefficients")
+
+alt_var_m1_summary.df %>% group_by(repl_id) %>% 
+        fmtTB(caption="summaries")
 
 rm(
   ml.ls,
@@ -389,8 +416,12 @@ ml.ls <- list(author_model2 = results_m2_computational.lmr,
 alt_var_m2.df <- tidy_results(ml.ls)
 alt_var_m2_summary.df <- tidy_summary(ml.ls)
 
-alt_var_m2.df  %>% group_by(repl_id) %>% gt()
-alt_var_m2_summary.df %>% group_by(repl_id) %>% gt()
+alt_var_m2.df  %>% group_by(repl_id) %>% 
+        fmtTB(caption="coefficients")
+
+alt_var_m2_summary.df %>% group_by(repl_id) %>% 
+        fmtTB(caption="summaries")
+
 
 rm(
   ml.ls,
@@ -420,9 +451,11 @@ results_m2_pctforeign_w_controls <-
   estimatr::lm_robust(dv ~ pctforeign * pctpublic_w_zsp + lab_pct_pensioners + educ_tertiary,
                       data = vienna_authors.df, clusters = tract_key)
 tidy_results(list("pctforeign_controls" = results_m2_pctforeign_w_controls)) %>%
-  gt()
+        fmtTB(caption="coefficients")
+
 tidy_summary(list("pctforeign_controls" = results_m2_pctforeign_w_controls)) %>%
-  gt()
+        fmtTB(caption="summaries")
+
 ```
 
 It's possible that these results are driven by homophily, i.e., voters residing in tracts with higher percentages of third-country nationals have political preferences that are more friendly to third-country nationals. To test this, we see if voters living in areas with few third-country nationals were also more likely to vote for far-right parties in 2002. To ensure that the controls make sense, we reverse-engineer `pctforeign02`.
@@ -442,9 +475,11 @@ results_m2_pctforeign_w_controls_placebo <-
   estimatr::lm_robust(farright_share2002 ~ pctforeign02 * pctpublic_w_zsp + lab_pct_pensioners + educ_tertiary,
                       data = placebo_df, clusters = tract_key)
 tidy_results(list("pctforeign_controls_placebo" = results_m2_pctforeign_w_controls_placebo)) %>%
-  gt()
+        fmtTB(caption="coefficients")
+
 tidy_summary(list("pctforeign_controls_placebo" = results_m2_pctforeign_w_controls_placebo)) %>%
-  gt()
+        fmtTB(caption="summaries")
+
 
 rm(placebo_df)
 ```
@@ -467,9 +502,13 @@ repro_m1_reweight.df <- tidy_results(list(comp = results_m1_reweight)) %>%
 
 repro_m1_reweight_summary.df <- tidy_summary(list(comp = results_m1_reweight))
 
-repro_m1_reweight.df %>% group_by(repl_id) %>% gt()
+repro_m1_reweight.df %>% group_by(repl_id) %>% 
+        fmtTB(caption="coefficients")
 
-repro_m1_reweight_summary.df %>% group_by(repl_id) %>% gt()
+
+repro_m1_reweight_summary.df %>% group_by(repl_id) %>%
+      fmtTB(caption="summaries")
+
 ```
 
 We see that both effects become more pronounced---first, that municipalities with higher numbers of third-country residents are substantially less likely to vote for far-right parties, and second, that municipalities with high proportions of people living in public housing are more likely to vote for far-right parties.
@@ -486,9 +525,12 @@ repro_m2_reweight.df <- tidy_results(list(comp = results_m2_reweight)) %>%
 
 repro_m2_reweight_summary.df <- tidy_summary(list(comp = results_m2_reweight))
 
-repro_m2_reweight.df %>% group_by(repl_id) %>% gt()
+repro_m2_reweight.df %>% group_by(repl_id) %>%
+        fmtTB(caption="coefficients")
 
-repro_m2_reweight_summary.df %>% group_by(repl_id) %>% gt()
+
+repro_m2_reweight_summary.df %>% group_by(repl_id) %>%  fmtTB(caption="summaries")
+
 ```
 
 In this case, the weighting makes almost no difference to the model results.
@@ -500,8 +542,10 @@ results_m2_pctforeign_reweight <-
   estimatr::lm_robust(dv ~ pctforeign * pctpublic_w_zsp, data = vienna_authors.df,
                       weights = exp(log_voters), clusters = tract_key)
 
-tidy_results(list(results_m2_pctforeign_reweight)) %>% gt()
-tidy_summary(list(results_m2_pctforeign_reweight)) %>% gt()
+tidy_results(list(results_m2_pctforeign_reweight)) %>% fmtTB(caption="coefficients")
+
+tidy_summary(list(results_m2_pctforeign_reweight)) %>% fmtTB(caption="summaries")
+
 ```
 
 Again, this doesn't seem to meaningfully affect the results.
@@ -510,7 +554,7 @@ Again, this doesn't seem to meaningfully affect the results.
 
 #### Graphical Exploration of Data (intraoccular impact)
 
-To better understand the authors main claims, we attempt to visualize the trends they find in the raw data. We begin with the first analysis, which links support for far-right political parties in the 2006 federal election with the proportion of third-country nationals across Austrian municipalities.
+To better understand the authors' main claims, we attempt to visualize the trends they find in the raw data. We begin with the first analysis, which links support for far-right political parties in the 2006 federal election with the proportion of third-country nationals across Austrian municipalities.
 
 ```{r intraoccular-1}
 requireNamespace("plotly")
@@ -859,6 +903,10 @@ Now, we replicate the baseline model from Table 1 (regression of far-right vote 
 library("lfe")
 library("gtsummary")
 
+glance.summary.felm <- function(x,...) {
+ x[c("rdf","rse","r.squared","N","r2","r2adj")] %>% as_tibble()
+}
+
 austria_authors.df_upd <- austria_authors.df %>%
   mutate(
     outlier98 = ifelse(
@@ -884,20 +932,31 @@ austria_authors.df_upd <- austria_authors.df %>%
     )
 
 
-
-ols1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =austria_authors.df) %>%
+m1_ols1.felm <- 
+  felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =austria_authors.df)
+ols1 <- m1_ols1.felm %>%
   tbl_regression(tidy_fun = purrr::partial(tidy_robust, robust = "HC1"))%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
   gtsummary::add_glance_table(include = c(nobs, r.squared))
-ols2 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98 == FALSE)) %>%
+
+m1_ols2.felm <- 
+  felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98 == FALSE))
+ols2<- m1_ols2.felm %>%
   tbl_regression()%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
-  add_glance_table(include = c(nobs, r.squared))       
-ols3 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98_up == FALSE)) %>%
+  add_glance_table(include = c(nobs, r.squared))  
+
+m1_ols3.felm <-  felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98_up == FALSE)) 
+
+ols3 <-m1_ols3.felm %>%
   tbl_regression()%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
   add_glance_table(include = c(nobs, r.squared))
-ols4 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98_down == FALSE)) %>%
+
+
+m1_ols4.felm <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0, data =subset(austria_authors.df_upd, outlier98_down == FALSE))
+
+ols4<- m1_ols4.felm %>%
   tbl_regression()%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
   add_glance_table(include = c(nobs, r.squared))
@@ -910,6 +969,19 @@ tbl_merge_ex1 <-
   )
 
 tbl_merge_ex1
+
+ml.ls <- list(orig=m1_ols4.felm,maxmintrim=m1_ols4.felm,maxtrim=m1_ols4.felm,mintrim=m1_ols4.felm)
+tidy_results(ml.ls) %>%
+  fmtTB(caption="coefficients")
+
+tidy_summary(ml.ls)%>%
+  fmtTB(caption="summary")
+
+rm(ols1,ols2,ols3,ols4,ml.ls,
+   m1_ols4.felm,
+   m1_ols4.felm,
+   m1_ols4.felm,
+   m1_ols4.felm)
 ```
 
 We can observe that the initial baseline model demonstrates reproducibility in terms of effect sizes and standard errors. However, once we alter the subsamples, we notice a shift in the results. Specifically, when we exclude the top 1% of the highest values for all three key variables, it leads to a change in the estimate for the interaction term. The coefficient drops to 0.47, with a p-value of 0.091, in contrast to the baseline model where the p-value was less than 0.001.
@@ -918,20 +990,27 @@ Moving forward, we explore the impact of clustering errors by district (**bezirk
 
 ```{r outliers_reg2}
 
-rols1 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =austria_authors.df) %>%
+m1_rols1.felm <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =austria_authors.df) 
+rols1 <-m1_rols1.felm %>%
   tbl_regression(tidy_fun = purrr::partial(tidy_robust, robust = "HC1"))%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
   add_glance_table(include = c(nobs, r.squared))
-rols2 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98 == FALSE)) %>%
+
+m1_rols2.felm <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98 == FALSE))
+rols2 <-m1_rols2.felm %>%
   tbl_regression()%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
-  add_glance_table(include = c(nobs, r.squared))       
-rols3 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_up == FALSE)) %>%
+  add_glance_table(include = c(nobs, r.squared))  
+
+m1_rols3.felm <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_up == FALSE)) 
+rols3 <- m1_rols3.felm%>%
   tbl_regression()%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
   add_glance_table(include = c(nobs, r.squared))
-rols4 <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_down == FALSE)) %>%
-  tbl_regression()%>%        
+
+m1_rols4.felm <- felm(d_rr_06 ~ dv_pop_01*pct_noneu_06|0|0|bezirk, data =subset(austria_authors.df_upd, outlier98_down == FALSE)) 
+rols4 <- m1_rols2.felm %>% 
+    tbl_regression()%>%        
   add_significance_stars(hide_p = F, hide_se = F)%>%
   add_glance_table(include = c(nobs, r.squared))
 
@@ -943,6 +1022,20 @@ tbl_merge_ex1 <-
   )
 
 tbl_merge_ex1
+
+
+ml.ls <- list(orig=m1_rols4.felm, 
+              maxmintrim=m1_rols3.felm, 
+              maxtrim=m1_rols3.felm,
+              mintrim=m1_rols4.felm)
+
+tidy_results(ml.ls) %>%
+  fmtTB(caption="coefficients")
+
+tidy_summary(ml.ls)%>%
+  fmtTB(caption="summary")
+
+rm(ml.ls, rols1, rols2, rols3, rols4, m1rols1.felm, m1rols2.felm,m1rols3.felm,m1rols4.felm)
 ```
 
 Here we look at the covariate balance between outliers and non-outlier observations.
@@ -974,9 +1067,11 @@ love.plot(m.out, stats = c("mean.diffs"),
           thresholds = c(m = .1, v = 2), abs = TRUE, 
           binary = "std",
           var.order = "unadjusted")
+
+rm(m.out,austria_authors.df_upd1)
 ```
 
-Finally, we apply the baseline specification to the sample of 65 outliers. In this case, we observe a significantly higher R-squared value (0.687). Moreover, all the coefficients are highly significant with p-values less than 0.001, and they exhibit comparatively large effect sizes. For instance, the coefficient of the key interaction is 3.0, which is 4.5 times higher than that of the overall sample. This suggests that the observed effect in the full sample in the paper may be largely driven by this small subsample. 
+Finally, we apply the baseline specification to the sample of 65 outliers. In this case, we observe a significantly higher R-squared value (0.687). Moreover, all the coefficients are highly significant with p-values less than 0.001, and they exhibit comparatively large effect sizes. For instance, the coefficient of the key interaction is 3.0, which is 4.5 times higher than that of the overall sample. This suggests that the observed effect in the full sample in the paper may be largely driven by this small subsample.
 
 We can observe that the sample of outlier observations (depicted in red on the plot) significantly differs from the rest in several aspects. Parameters such as the number of registered voters, education, income, and various other factors tend to be higher on average in this subgroup. It's worth noting that this smaller sample also exhibits higher rates of unemployment, increased welfare and education spending, as well as a more pronounced growth in the number of foreign-born residents.
 
@@ -1040,6 +1135,6 @@ rm(sqe2)
 
 ## Conclusion
 
-We find research is computationally replicable but the evidence for the main causal claims are overstated. While the focus of analysis concentrates on patterns in outcomes that are likely relevant to understanding the underlying data-generating process, the statistical models supporting the causal claims support only a small proportion of overall variance in outcomes. Furthermore, the analysis elides relevant competing models. For example, model-only main effects fit the data nearly as well as those including the interactive term that supports the main causal claim.
+We find that the research is computationally replicable but the evidence for the main causal claims are overstated. While the focus of analysis concentrates on patterns in outcomes that are likely relevant to understanding the underlying data-generating process, the statistical models supporting the causal claims support only a small proportion of overall variance in outcomes. Furthermore, the analysis elides relevant competing models.
 
-The relative weakness of the claim is obscured in the public analysis because neither overall goodness of fit, nor comparison to 'naive' / baseline models are include. While conceptual reproducibility analysis would be useful for exploring more complex alternate models this route is obstructed by the absence of citations, documentation and linking codes that would support reliable reanalysis using original data, or augmentation of the authors' data with additional measures. We conjecture that, as a general practice, research reliability would be increased by including these practices in publication and data sharing.
+The relative weakness of the claim is obscured in the public analysis because neither overall goodness of fit, nor comparison to 'naive' / baseline models are included. While conceptual reproducibility analysis would be useful for exploring more complex alternate models this route is obstructed by the absence of citations, documentation and linking codes that would support reliable reanalysis using original data, or augmentation of the authors' data with additional measures. We conjecture that, as a general practice, research reliability would be increased by including these practices in publication and data sharing.
