@@ -9,7 +9,7 @@ editor: visual
 bibliography: references.bib
 ---
 
-# **A comment on Cavaillé and Ferwerda (2022)**
+# **A structured comment on Cavaillé and Ferwerda (2022)**
 
 Micah Altman[^1][^2] (MIT) [escience\@mit.edu](mailto:escience@mit.edu){.email}, Hans Gaebler (Harvard) [jgaebler\@fas.harvard.edu](mailto:jgaebler@fas.harvard.edu){.email}, Georgy Tarasenko (Cornell) [gt298\@cornell.edu](mailto:gt298@cornell.edu){.email}
 
@@ -21,7 +21,7 @@ Micah Altman[^1][^2] (MIT) [escience\@mit.edu](mailto:escience@mit.edu){.email},
 
 Cavaillé and Ferwerda [@cavaillé2023] examine the effect of granting immigrants access to the welfare state in Austria during 2006 on the support for far-right parties. In their preferred specification, they find that -- the interaction of the proportion of non-eu residents in a municipality with the proportion of population in that municipality has an effect on the change in vote share for far right parties of +0.67 (p \< .05) supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties. Moderating this, based on a subset of data from Vienna, they find that -- percentage of population in rental housing and the percentage of population in public housing are both substantive and significant predictors of change in far-right party vote share with magnitude of .03 and .09 (respectively) and p-values of \< .05. Based on this estmate they conclude that support was increased by the the high proportion of public housing beneficiaries or low-end rentals within districts.
 
-As part of a collaborative iniative, we conducted a time bounded replication study, following a standardized template. We first reproduce the paper's main and secondary analyses, and subject these to computational robustness tests.
+As part of a collaborative iniatitve, we conducted a time-bounded replication study, following a standardized template. We first reproduce the paper's main and secondary analyses, and subject these to computational robustness tests.
 
 We then conduct several types of conceptual replication -- examining the robustness of results to selection of covariates, reweighting, and the sensitivity of results to resampling and outliers.
 
@@ -279,7 +279,7 @@ The computational reproductions showed both the main and secondary results to be
 
 ### Conceptual Replication: Alternate OLS Specification (covariate robustness)
 
-Prompted by the unexectedly poor fit of the primary model, we performed a conceptual replication that applied the authors' linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation.
+Prompted by the unexpectedly poor fit of the primary model, we performed a conceptual replication that applied the authors' linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation.
 
 #### Alternate Covariates & Model 1
 
@@ -335,6 +335,9 @@ results_m1_euonly.lmr <-
 results_m1_poponly.lmr <-
   estimatr::lm_robust(formula("d_rr_06 ~ dv_pop_01 "), data = austria_authors.df)
 
+results_m1_null.lmr <-
+  estimatr::lm_robust(formula("d_rr_06 ~ 1 "), data = austria_authors.df)
+
 ml.ls <- list(
   author_model1 = results_m1_computational.lmr,
   author_clusterederr = results_m1_clustered.lmr,
@@ -345,7 +348,8 @@ ml.ls <- list(
   interaction = results_m1_interactionsonly.lmr,
   maineffects = results_m1_mainonly.lmr,
   single_eu = results_m1_euonly.lmr,
-  single_pop = results_m1_poponly.lmr
+  single_pop = results_m1_poponly.lmr,
+  null_model= results_m1_null.lmr
 )
 
 alt_var_m1.df <- tidy_results(ml.ls)
@@ -372,6 +376,79 @@ rm(
 ```
 
 Observe that none of the alternative models fit the data well. Moreover, models without interaction effects provide only slightly lower explanatory power.
+
+```{r AIC-main}
+
+#recomput using lm -- since estimatr::  does not have an AIC method
+
+results_m1_author.lm <-  lm(m1.formula, data = austria_authors.df)
+
+results_m1_mainonly.lm <-
+  lm(formula("d_rr_06 ~ dv_pop_01 + pct_noneu_06 "), data = austria_authors.df)
+
+results_m1_kitchensink.lm <-
+  lm(
+    formula(
+      "d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"
+    ),
+    data = austria_authors.df
+  )
+
+results_m1_kitchensinkmain.lm <-
+  lm(
+    formula(
+      "d_rr_06 ~ dv_pop_01+pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct +vacancy_01_public"
+    ),
+    data = austria_authors.df
+  )
+results_m1_kitchensink_novacancy.lm <-
+  lm(
+    formula(
+      "d_rr_06 ~ dv_pop_01:pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct "
+    ),
+    data = austria_authors.df
+  )
+
+results_m1_kitchensinkmain_novacancy.lm <-
+  lm(
+    formula(
+      "d_rr_06 ~ dv_pop_01+pct_noneu_06 +educ_tertiary +avg_income +lab_pct_manufact_01 +lab_pct_unemp +welfare_cap_06 +health_cap_06 +education_cap_06 +foreignborn_delta+citizen_eu_growth_pct "
+    ),
+    data = austria_authors.df
+  )
+
+results_m1_null.lm <-
+ lm(formula("d_rr_06 ~ 1 "), data = austria_authors.df)
+
+ml.ls <- list(
+  author_model1 = results_m1_author.lm,
+  loaded = results_m1_kitchensink.lm,
+  loaded_main = results_m1_kitchensinkmain.lm,
+  maineffects = results_m1_mainonly.lm,
+  loaded_nv = results_m1_kitchensink_novacancy.lm,
+  loaded_main_nv = results_m1_kitchensinkmain_novacancy.lm,
+  null_model= results_m1_null.lm
+)
+
+bictab.tb <- AICcmodavg::bictab(ml.ls)
+bictab.tb 
+
+
+AICcmodavg::evidence(bictab.tb, model.high="author_model1", model.low="maineffects")
+
+
+rm(
+  ml.ls,
+    results_m1_author.lm,
+results_m1_kitchensink.lm,
+  results_m1_kitchensinkmain.lm,
+  results_m1_mainonly.lm,
+   results_m1_kitchensink_novacancy.lm,
+   results_m1_kitchensinkmain_novacancy.lm,
+  null_model= results_m1_null.lm,
+  bictab.tb
+)
+```
 
 #### Alternate Covariates & Model 2
 
@@ -432,7 +509,52 @@ rm(
 )
 ```
 
-Observe as withthe primary finding that none of the alternative models fit the data well, and that models without interaction effects provide only slightly lower explanatory power. Further, when the orignal model applied to the country as a whole (as above) for the main findingt is fit to this subset, the interaction term is not significant.
+Observe as with the primary finding that none of the alternative models fit the data well, and that models without interaction effects provide only slightly lower explanatory power. Further, when the original model applied to the country as a whole (as above) for the main finding is fit to this subset, the interaction term is not significant.
+
+```{r AIC-m2}
+m2.formula<- formula("dv ~  (pctrental + pctpublic_w_zsp)")
+results_m2_computational.lm <-
+  lm(m2.formula,   data = vienna_authors.df)
+
+results_m2_interaction.lm <-
+lm(formula("dv ~ pctrental*pctpublic_w_zsp"),
+                      data = vienna_authors.df)
+
+results_m2_m1model.lm <-
+ lm(formula("dv ~ pctpublic_w_zsp*pctforeign"),
+                      data = vienna_authors.df)
+
+results_m2_rental.lm <-
+  lm(formula("dv ~ pctrental"),
+                      data = vienna_authors.df)
+
+results_m2_housing.lm <-
+  lm(formula("dv ~ pctpublic_w_zsp"),
+                      data = vienna_authors.df)
+
+ml.ls <- list(author_model2 = results_m2_computational.lm,
+              interaction = results_m2_interaction.lm,
+              m1spec = results_m2_m1model.lm,
+              housing_only = results_m2_housing.lm,
+              rental_only = results_m2_rental.lm
+              )
+
+bictab.tb <- AICcmodavg::bictab(ml.ls)
+bictab.tb 
+
+
+AICcmodavg::evidence(bictab.tb, model.high="author_model2", model.low="interaction")
+
+
+rm(
+  ml.ls,
+  bictab.tb,
+  results_m2_interaction.lmr,
+  results_m2_m1model.lmr,
+  results_m2_housing.lmr,
+  results_m2_rental.lmr
+)
+```
 
 #### Proportion of third-country nationals
 
