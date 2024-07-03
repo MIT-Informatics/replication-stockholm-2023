@@ -78,7 +78,19 @@ Cavaillé and Ferwerda [@cavaillé2023] tested the effect of granting immigrants
 
 In their preferred specification, using OLS with clustered standard errors, they find that -- the interaction of the proportion of non-eu residents in a municipality with the proportion of population in that municipality has an effect on the change in vote share for far right parties of +0.67 (p \< .05) (pg 26, Table 1, col 1) supporting the main substantive claim that increasing welfare benefits to immigrants increases support for far-right parties (pg. 19). Moderating this, based on a subset of data from Vienna, they find that -- percentage of population in rental housing and the percentage of population in public housing are both substantive and significant predictors of change in far-right party vote share with magnitude of .03 and .09 (respectively) and p-values of \< .05. (pg 30, Table 2, col 1). Based on this estimate they conclude that support was accelerated by the the high proportion of public housing beneficiaries or low-end rentals within districts. (pg 19.)
 
-We created this replication report as part of an intensive single-day replication effort as part of the 'Replication Games' a collaborative research initiative of the Institute for Replication. We pre-selected the study from a short list of candidates provided by the organizers, and applied the provided template and nomenclature.
+### Analysis Protocol and Context
+
+We created this replication report as part of an intensive single-day replication effort as part of the 'Replication Games' a multi-analyst research initiative of the Institute for Replication. We pre-selected the study from a short list of candidates provided by the organizers, and applied the provided template and nomenclature.
+
+The protocol for the overall initiative was pre-registered by the principle investigators of the effort. [^3] The protocol does not specify the details of interaction with or instruction to the analysts, which were later provided to us as slides and email. In summary, analysts were asked to: First, approximately 1-2 weeks prior to the games familiarize ourselves with the article to be replicated, and develop an overall plan for replication day. 2. During replication day, conduct a 1-day (8-hour) intensive replication of the article. (Analysts were instructed that it was permissible to continue after this period, but encouraged to focus their effort and planning on this day.) 3. Over approximately the next 6-8 weeks write up the results of the replication-day exercise using a standard template.
+
+[^3]: See <https://osf.io/3dseb>
+
+Our team's work was consistent with these instructions. Approximately one day of effort each was allocated by the team to planning, replicating, and writing ( for a total of 9 FTE full-time-equivalent days of effort).
+
+Subsequently, we were asked to review a response from the author to our report. We allocated approximately two days to this activity – which resulted in some additions to the text of this report to further clarify the intended interpretation of our comments.
+
+### Overview of Analysis
 
 We obtained the published replication data set [@Cavaille2023] from the Harvard Dataverse archive, where it had been deposited for public use by the authors. The replication data set included the final processed data used to produce the paper results, along with R code to replicate figures and tables. The data was sufficient to check computational repoducibility but posed challenges for conceptual reproducibility because it provided neither copies of the source data, nor links to or citations of the original data sources (which were described generally). Further although the replication data did include additional measures not used in publication, these were largely undocumented, and hence difficult to reliably interpret.
 
