@@ -25,7 +25,7 @@ As part of a collaborative iniatitve, we conducted a time-bounded replication st
 
 We then conduct several types of conceptual replication -- examining the robustness of results to selection of covariates, reweighting, and the sensitivity of results to resampling and outliers.
 
-We find that the research is computationally replicable but the evidence for the main causal claims are potentially overstated as it sensitive to a small set of observations, does not explain most of the variation in outcomes, and does not out-compete simpler causal explanations.
+We find that the research is computationally replicable but the evidence for the main causal claims are potentially overstated as it sensitive to a small set of observations, does not explain most of the variation in outcomes, and does not clearly out-compete alternative specifications.
 
 ## Introduction
 
@@ -88,17 +88,17 @@ The protocol for the overall initiative was pre-registered by the principle inve
 
 Our team's work was consistent with these instructions. Approximately one day of effort each was allocated by the team to planning, replicating, and writing ( for a total of 9 FTE full-time-equivalent days of effort).
 
-Subsequently, we were asked to review a response from the author to our report. We allocated approximately two days to this activity – which resulted in some additions to the text of this report to further clarify the intended interpretation of our comments.
+Subsequently, we were asked to review a response from the author to our report. We allocated approximately two days to this activity – which resulted in some additions to the text of this report to clarify its interpretation.
 
 ### Overview of Analysis
 
-We obtained the published replication data set [@Cavaille2023] from the Harvard Dataverse archive, where it had been deposited for public use by the authors. The replication data set included the final processed data used to produce the paper results, along with R code to replicate figures and tables. The data was sufficient to check computational repoducibility but posed challenges for conceptual reproducibility because it provided neither copies of the source data, nor links to or citations of the original data sources (which were described generally). Further although the replication data did include additional measures not used in publication, these were largely undocumented, and hence difficult to reliably interpret.
+We obtained the published replication data set [@Cavaille2023] from the Harvard Dataverse archive, where it had been deposited for public use by the authors. The replication data set included the final processed data used to produce the paper results, along with R code to replicate figures and tables. The data was sufficient to check computational reproducibility but posed challenges for conceptual reproducibility because it provided neither copies of the source data, nor links to or citations of the original data sources (which were described generally). Further although the replication data did include additional measures not used in publication, these were largely undocumented, and hence difficult to reliably interpret.
 
 We first reproduced the paper's main and secondary analyses, and subject these to computational robustness tests. The computational reproductions showed both the main and secondary results to be reproducible. As an unintended consequence reproducing the results revealed the substantively poor fit of these models: the primary model has an R-squared of .0356. This finding informed further replication analysis.
 
 We then conducted several types of conceptual replication -- examining the robustness of results to selection of covariates, reweighting, and the sensitivity of results to resampling and outliers.
 
-Prompted by the unexectedly poor fit of the primary model, we performed a conceptual replication that applied the authors' linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation. This reveals that the interaction term does not provide substantial improvement in explanatory power over a more naive baseline.
+Prompted by the unexpectedly poor fit of the primary model, we performed a conceptual replication that applied the authors' linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation. This reveals that the addition of the model interaction term does not a provide substantial improvement in predictive power over plausible alternative models.
 
 The authors suggest, in their first analysis of nation-wide election data, that voters in municipalities with high proportions of residents living in public housing as well as comparatively high proportions of third-country nationals voted more for far-right parties as a result of the demand shock on public housing. We undertake a conceptual replication of this result using their data on the city of Vienna. In particular, we look at census tracts---as a proxy for neighborhood---to see if tracts with a higher proportion of third-country nationals and higher proportions of individuals living in public housing tend to vote for far-right parties at higher rates. We find that implementing this conceptual replication increases the magnitude of the main point estimate for the interaction between these two factors, but the estimate is no longer statistically significant at the 5% level.
 
@@ -213,8 +213,6 @@ repro_m2_summary.df %>% group_by(repl_id) %>%
 
 The computational reproductions showed both the main and secondary results to be reproducible.
 
-As an unintended consequence, reproducing the results revealed the substantively poor fit of these models: the primary model has an R-squared of .0356. This finding informed the replication analysis.
-
 ### Computational robustness
 
 Generally, even with a fixed statistical model family and specification results may vary with the estimation algorithm used and specific software's implementation of it. [@altman2004] We evaluate the computational robustness of the model by using alternative algorithms and implementations.
@@ -290,6 +288,10 @@ The computational reproductions showed both the main and secondary results to be
 ## Replication:
 
 ### Conceptual Replication: Alternate OLS Specification (covariate robustness)
+
+Presenting multiple models - as opposed to pure null-hypothesis-significance-tests of a main result - is common in political science, where much analysis is observational and nature, and there are often plausible competing causal explanations. Consistent with this, the original article presents results for multiple alternative models of the theorized interaction effect. In particular, Table 1 of the original paper presents eight different variants of the interactive model, with associated coefficient estimates. However, neither the paper nor the supplementary materials provided goodness-of-fit criteria for the models; nor explicitly compared the models to competing models in which interactions were absent.
+
+As a routine part of replicating the models, a number of standard diagnostic measures of fit were produced. Examing these revealed, unexpectedly, the the primary model had an R-squared of .0356 – which is presumptively indicative of a poor model fit, suggests that the model is mispecified. This finding informed the replication analysis.
 
 Prompted by the unexpectedly poor fit of the primary model, we performed a conceptual replication that applied the authors' linear model with clustered errors with alternate covariates, and to models that did not include the interaction effects that are central to the papers proposed causal explanation.
 
@@ -387,7 +389,13 @@ rm(
 )
 ```
 
-Observe that none of the alternative models fit the data well. Moreover, models without interaction effects provide only slightly lower explanatory power.
+Observe that none of the alternative models fit the data well. Moreover, models without interaction effects provide only slightly lower explanatory power, as measured by adjusted R-squared; while alternative specifications with additional variables improve predictive power.
+
+As an addenda, after reflection on the authors' response to the first version of this comment, we emphasize that these measures are not included because they are of substantive theoretical interest as estimands in their own right, but as the default (produced by the model) measure of fit used to compare competing explanatory models. And, of course, there are many other systematic approaches to model selection and model uncertainty that could be applied – AIC, BIC, Bayes Factor, evidence , etc. [@kadane2004]
+
+(We include for illustration, below, some alternate measures for model comparison. Some of these –particularly the evidence ratio– are more favorable to the authors' preferred specification. However, neither the authors' originally published results, nor our replication compel rejection of plausible competing models. )
+
+In this comment, we do not argue for the adoption a specific alternative model, nor for a single measure or method of model comparison. We do observe that the addition of model fit criteria, and a systematic comparison to alternative models reflecting from competing (e.g. simpler) explanation should change a reader's assessment of the weight of the evidence in this case, and would be a useful practice for general adoption in observational social-science analyses.
 
 ```{r AIC-main}
 
@@ -450,16 +458,16 @@ AICcmodavg::evidence(bictab.tb, model.high="author_model1", model.low="maineffec
 
 
 rm(
-  ml.ls,
-    results_m1_author.lm,
-results_m1_kitchensink.lm,
-  results_m1_kitchensinkmain.lm,
-  results_m1_mainonly.lm,
+   ml.ls,
+   results_m1_author.lm,
+   results_m1_kitchensink.lm,
+   results_m1_kitchensinkmain.lm,
+    results_m1_mainonly.lm,
    results_m1_kitchensink_novacancy.lm,
-   results_m1_kitchensinkmain_novacancy.lm,
-  null_model= results_m1_null.lm,
-  bictab.tb
-)
+    results_m1_kitchensinkmain_novacancy.lm,
+   null_model= results_m1_null.lm,
+   bictab.tb
+ )
 ```
 
 #### Alternate Covariates & Model 2
@@ -521,52 +529,7 @@ rm(
 )
 ```
 
-Observe as with the primary finding that none of the alternative models fit the data well, and that models without interaction effects provide only slightly lower explanatory power. Further, when the original model applied to the country as a whole (as above) for the main finding is fit to this subset, the interaction term is not significant.
-
-```{r AIC-m2}
-m2.formula<- formula("dv ~  (pctrental + pctpublic_w_zsp)")
-results_m2_computational.lm <-
-  lm(m2.formula,   data = vienna_authors.df)
-
-results_m2_interaction.lm <-
-lm(formula("dv ~ pctrental*pctpublic_w_zsp"),
-                      data = vienna_authors.df)
-
-results_m2_m1model.lm <-
- lm(formula("dv ~ pctpublic_w_zsp*pctforeign"),
-                      data = vienna_authors.df)
-
-results_m2_rental.lm <-
-  lm(formula("dv ~ pctrental"),
-                      data = vienna_authors.df)
-
-results_m2_housing.lm <-
-  lm(formula("dv ~ pctpublic_w_zsp"),
-                      data = vienna_authors.df)
-
-ml.ls <- list(author_model2 = results_m2_computational.lm,
-              interaction = results_m2_interaction.lm,
-              m1spec = results_m2_m1model.lm,
-              housing_only = results_m2_housing.lm,
-              rental_only = results_m2_rental.lm
-              )
-
-bictab.tb <- AICcmodavg::bictab(ml.ls)
-bictab.tb 
-
-
-AICcmodavg::evidence(bictab.tb, model.high="author_model2", model.low="interaction")
-
-
-rm(
-  ml.ls,
-  bictab.tb,
-  results_m2_interaction.lmr,
-  results_m2_m1model.lmr,
-  results_m2_housing.lmr,
-  results_m2_rental.lmr
-)
-```
+Observe as with the primary finding that none of the models fit the data well by the adjusted r-square measure, and that models without interaction effects provide only slightly lower explanatory power. Further, when the original model applied to the country as a whole (as above) for the main finding is fit to this subset, the interaction term is not significant.
 
 #### Proportion of third-country nationals
 
@@ -1266,6 +1229,8 @@ print(glue::glue("LOO RMSE for main effects: { sqrt(mean(sqe2, na.rm = TRUE)) }"
 rm(sqe1)
 rm(sqe2)
 ```
+
+As an addenda, after reflection upon the authors' responses to the first version of this comment, we provide further clarification on how the outlier analysis should be interpreted. The results analysis provides evidence that the data, as a whole does not conform to the favored model specification ( a linear model with a simple interaction term ). It is not intended as a definitive rebuttal of the conceptual theory advanced in the authors' publication – but to highlight the need for more extensive attention to model diagnostics and to the need for explicit comparison with competing models.
 
 ## Conclusion
 
